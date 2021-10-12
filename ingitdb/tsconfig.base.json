@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ingitdb/cliet": ["libs/client/src/index.ts"]
+      "@ingitdb/client": ["libs/client/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
