@@ -117,6 +117,47 @@
           }
         }
       }
+    },
+    "client": {
+      "projectType": "library",
+      "root": "libs/client",
+      "sourceRoot": "libs/client/src",
+      "prefix": "ingitdb",
+      "architect": {
+        "build": {
+          "builder": "@nrwl/angular:package",
+          "outputs": ["dist/libs/client"],
+          "options": {
+            "project": "libs/client/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "libs/client/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "libs/client/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/client"],
+          "options": {
+            "jestConfig": "libs/client/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/client/src/**/*.ts",
+              "libs/client/src/**/*.html"
+            ]
+          }
+        }
+      }
     }
   },
   "cli": {
