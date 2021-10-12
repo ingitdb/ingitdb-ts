@@ -1,6 +1,7 @@
 {
   "name": "@ingitdb/cliet",
   "version": "0.0.1",
+  "author": "Alexander Trakhimenok",
   "peerDependencies": {
     "@angular/common": "^12.2.0",
     "@angular/core": "^12.2.0"
