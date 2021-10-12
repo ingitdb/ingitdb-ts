@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ingitdb/client": ["libs/client/src/index.ts"]
+      "@ingitdb/client": ["libs/client/src/index.ts"],
+      "@ingitdb/schema": ["libs/schema/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
