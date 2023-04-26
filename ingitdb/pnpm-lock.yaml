@@ -41,13 +41,13 @@ specifiers:
   ts-jest: 27.0.5
   tslib: ^2.3.1
   typescript: ~4.3.5
-  zone.js: ~0.11.4
+  zone.js: ~0.13.0
 
 dependencies:
   '@angular/animations': 12.2.9_@angular+core@12.2.9
   '@angular/common': 12.2.9_@angular+core@12.2.9+rxjs@6.6.7
   '@angular/compiler': 12.2.9
-  '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+  '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
   '@angular/forms': 12.2.9_339429b0eb5cad7d3813534323e2c168
   '@angular/platform-browser': 12.2.9_110a2ada9e8116ada60e5e57e254e11b
   '@angular/platform-browser-dynamic': 12.2.9_6f57b33b067841eb80d4bce283e8816b
@@ -55,7 +55,7 @@ dependencies:
   '@nrwl/angular': 12.10.1_1cbc772b0c01d02845d1eea7bdba33b4
   rxjs: 6.6.7
   tslib: 2.3.1
-  zone.js: 0.11.4
+  zone.js: 0.13.0
 
 devDependencies:
   '@angular-devkit/build-angular': 12.2.9_ccb0c60c808a1a8ed2069ce381d028d7
@@ -338,7 +338,7 @@ packages:
     peerDependencies:
       '@angular/core': 12.2.9
     dependencies:
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       tslib: 2.3.1
 
   /@angular/cli/12.2.9:
@@ -378,7 +378,7 @@ packages:
       '@angular/core': 12.2.9
       rxjs: ^6.5.3 || ^7.0.0
     dependencies:
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       rxjs: 6.6.7
       tslib: 2.3.1
 
@@ -416,7 +416,7 @@ packages:
     dependencies:
       tslib: 2.3.1
 
-  /@angular/core/12.2.9_rxjs@6.6.7+zone.js@0.11.4:
+  /@angular/core/12.2.9_rxjs@6.6.7+zone.js@0.13.0:
     resolution: {integrity: sha512-RgUmn0YM4GMcViTEkWxDVGCyz8+subF+98dJie+bwJszATMxRK2TSINEg2X/Y0LgNxpRt4mKzIK2kz62oaDH7g==}
     engines: {node: ^12.14.1 || >=14.0.0}
     peerDependencies:
@@ -425,7 +425,7 @@ packages:
     dependencies:
       rxjs: 6.6.7
       tslib: 2.3.1
-      zone.js: 0.11.4
+      zone.js: 0.13.0
 
   /@angular/forms/12.2.9_339429b0eb5cad7d3813534323e2c168:
     resolution: {integrity: sha512-DugLX9h/hmphjdx0wGOp9koEpzFZpcMiYXfYO2rLyzc1NwopAcbSJTCvU+adfShZgh/b5v+7rb5n10JROj/ODw==}
@@ -437,7 +437,7 @@ packages:
       rxjs: ^6.5.3 || ^7.0.0
     dependencies:
       '@angular/common': 12.2.9_@angular+core@12.2.9+rxjs@6.6.7
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       '@angular/platform-browser': 12.2.9_110a2ada9e8116ada60e5e57e254e11b
       rxjs: 6.6.7
       tslib: 2.3.1
@@ -459,7 +459,7 @@ packages:
     dependencies:
       '@angular/common': 12.2.9_@angular+core@12.2.9+rxjs@6.6.7
       '@angular/compiler': 12.2.9
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       '@angular/platform-browser': 12.2.9_110a2ada9e8116ada60e5e57e254e11b
       tslib: 2.3.1
 
@@ -476,7 +476,7 @@ packages:
     dependencies:
       '@angular/animations': 12.2.9_@angular+core@12.2.9
       '@angular/common': 12.2.9_@angular+core@12.2.9+rxjs@6.6.7
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       tslib: 2.3.1
 
   /@angular/router/12.2.9_339429b0eb5cad7d3813534323e2c168:
@@ -489,7 +489,7 @@ packages:
       rxjs: ^6.5.3 || ^7.0.0
     dependencies:
       '@angular/common': 12.2.9_@angular+core@12.2.9+rxjs@6.6.7
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       '@angular/platform-browser': 12.2.9_110a2ada9e8116ada60e5e57e254e11b
       rxjs: 6.6.7
       tslib: 2.3.1
@@ -8060,7 +8060,7 @@ packages:
       '@angular/platform-browser-dynamic': '>=10.0.0'
     dependencies:
       '@angular/compiler-cli': 12.2.9_952065db5fdba047b9c0d264981d1703
-      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.11.4
+      '@angular/core': 12.2.9_rxjs@6.6.7+zone.js@0.13.0
       '@angular/platform-browser-dynamic': 12.2.9_6f57b33b067841eb80d4bce283e8816b
       jest-environment-jsdom: 27.2.5
       pretty-format: 27.2.5
@@ -12691,7 +12691,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /zone.js/0.11.4:
-    resolution: {integrity: sha512-DDh2Ab+A/B+9mJyajPjHFPWfYU1H+pdun4wnnk0OcQTNjem1XQSZ2CDW+rfZEUDjv5M19SBqAkjZi0x5wuB5Qw==}
+  /zone.js/0.13.0:
+    resolution: {integrity: sha512-7m3hNNyswsdoDobCkYNAy5WiUulkMd3+fWaGT9ij6iq3Zr/IwJo4RMCYPSDjT+r7tnPErmY9sZpKhWQ8S5k6XQ==}
     dependencies:
       tslib: 2.3.1
