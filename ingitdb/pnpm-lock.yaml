@@ -33,8 +33,8 @@ importers:
         specifier: ^12.2.9
         version: 12.2.17(@angular/common@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7))(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(@angular/platform-browser@12.2.17(@angular/animations@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8)))(@angular/common@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7))(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8)))(rxjs@6.6.7)
       '@nrwl/angular':
-        specifier: 12.10.0
-        version: 12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(rxjs@6.6.7)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
+        specifier: 12.10.1
+        version: 12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(rxjs@6.6.7)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
       rxjs:
         specifier: ~6.6.7
         version: 6.6.7
@@ -67,26 +67,26 @@ importers:
         specifier: ^12.2.9
         version: 12.2.17
       '@nrwl/cli':
-        specifier: 12.10.0
-        version: 12.10.0
+        specifier: 12.10.1
+        version: 12.10.1
       '@nrwl/cypress':
-        specifier: 12.10.0
-        version: 12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
+        specifier: 12.10.1
+        version: 12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
       '@nrwl/eslint-plugin-nx':
-        specifier: 12.10.0
-        version: 12.10.0(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint-config-prettier@8.1.0(eslint@7.22.0))(eslint@7.22.0)(prettier@2.8.8)(typescript@4.3.5)
+        specifier: 12.10.1
+        version: 12.10.1(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint-config-prettier@8.1.0(eslint@7.22.0))(eslint@7.22.0)(prettier@2.8.8)(typescript@4.3.5)
       '@nrwl/jest':
-        specifier: 12.10.0
-        version: 12.10.0(ts-node@9.1.1(typescript@4.3.5))
+        specifier: 12.10.1
+        version: 12.10.1(ts-node@9.1.1(typescript@4.3.5))
       '@nrwl/linter':
-        specifier: 12.10.0
-        version: 12.10.0(ts-node@9.1.1(typescript@4.3.5))
+        specifier: 12.10.1
+        version: 12.10.1(ts-node@9.1.1(typescript@4.3.5))
       '@nrwl/tao':
-        specifier: 12.10.0
-        version: 12.10.0
+        specifier: 12.10.1
+        version: 12.10.1
       '@nrwl/workspace':
-        specifier: 12.10.0
-        version: 12.10.0(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
+        specifier: 12.10.1
+        version: 12.10.1(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
       '@types/jest':
         specifier: 27.0.2
         version: 27.0.2
@@ -134,10 +134,10 @@ importers:
     dependencies:
       '@angular/common':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)
+        version: 12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7)
       '@angular/core':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
+        version: 12.2.17(rxjs@6.6.7)(zone.js@0.11.8)
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -146,10 +146,10 @@ importers:
     dependencies:
       '@angular/common':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)
+        version: 12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7)
       '@angular/core':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
+        version: 12.2.17(rxjs@6.6.7)(zone.js@0.11.8)
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -1249,42 +1249,42 @@ packages:
   '@npmcli/run-script@2.0.0':
     resolution: {integrity: sha512-fSan/Pu11xS/TdaTpTB0MRn9guwGU8dye+x56mEVgBEd/QsybBbYcAL0phPXi8SGWFEChkQd6M9qL4y6VOpFig==}
 
-  '@nrwl/angular@12.10.0':
-    resolution: {integrity: sha512-7MVaTU132cdVBAdZw2eaa8PMVZweKyMTjEgg6mIoEns9G/WDB8lzugh0Fq+TwakxGOecZX5tZbN12f/fC2/UGQ==}
+  '@nrwl/angular@12.10.1':
+    resolution: {integrity: sha512-H3tuFf6VCerdckQdHpx65Xon/5s9f3WrtYqgm+ASsstJcdBSKwNIGBU9oLObeFzYw6nNcH1U98yp9bDLKv97rg==}
 
-  '@nrwl/cli@12.10.0':
-    resolution: {integrity: sha512-T8HY7OpY5ygwUZcgt1W2mKYvSsiJ2AMDv7PDGQMCfauYd37FeK8ae93mqdbAXZRJKLrAuaoy51TWOQxwv4vzsA==}
+  '@nrwl/cli@12.10.1':
+    resolution: {integrity: sha512-fFwjQ4/Qb7GEkUR8vtiKzDDvd6UtGYsqTvL5sN3pT9Y3SNbeVnriKyDmfG2towoxornMxiKSN/g8VHp6udlK1w==}
     hasBin: true
 
-  '@nrwl/cypress@12.10.0':
-    resolution: {integrity: sha512-hqiTkhcg3H8ZA4ihWKSj2qwae90WN2/8WTHLIIjn+aNT0D4XtfaE/3RAIwLvkF+VqyUcvjwTIesV+d87Fgo5dA==}
+  '@nrwl/cypress@12.10.1':
+    resolution: {integrity: sha512-JHfg1s6ZzOVDtD/2vpsHW403uBfeq9j+zMxFRgXlxp/npMkjDNDAzg4YWiwLtYGzrE1oCGDKO8wsiH0CAAVboQ==}
     peerDependencies:
       cypress: '>= 3 < 9'
 
-  '@nrwl/devkit@12.10.0':
-    resolution: {integrity: sha512-we0K5Hn48BXh77SV5GVSPfRJeIHNCVFSn+feLbnKz3G60Tk3wFEEFhDABA8cCfTKDxMESSjZoWBy4ZcVg0EX0g==}
+  '@nrwl/devkit@12.10.1':
+    resolution: {integrity: sha512-l8S5uNVONiaHN0ieaFsx1BwVn2NluxhORzIVd1vjxP/f5yR302nHMG2MKhjkWd0DPjI7rnngaWC3WsH06SptWg==}
 
-  '@nrwl/eslint-plugin-nx@12.10.0':
-    resolution: {integrity: sha512-bm0PjAYWuVw2b6fJ0oBSyGvtVIwhXXrznQ5H8kiwoHU3H58W4gu+OSnaMjDXT5ZCUsuTEV1fmI7GynJLGBtzDw==}
+  '@nrwl/eslint-plugin-nx@12.10.1':
+    resolution: {integrity: sha512-PARz0xnGDIql2c0l5GgsLi32bIK762H09t4ni7/Et9xS+WjG9LlkmcrRPLkiDCTjlmum/qmD+agM4iMJkhTuwA==}
     peerDependencies:
       '@typescript-eslint/parser': ~4.31.1
       eslint-config-prettier: ^8.1.0
 
-  '@nrwl/jest@12.10.0':
-    resolution: {integrity: sha512-Tqrl/d6y+fGWV9j8bCReLhhfnioAA8yPC9Y6EUevxPuuuW0AUwRZp8slhx7mCiWNh9nLCkMO7PcwD+4L39kzjQ==}
+  '@nrwl/jest@12.10.1':
+    resolution: {integrity: sha512-ta7HpHn9+fdOtCXmJJWkLXO7ggD6FcusjzOsmtlMy2LIZG9hp4CjtEecdImmtIR2zvYBCBQfk+4mos8JF1qfyA==}
 
-  '@nrwl/linter@12.10.0':
-    resolution: {integrity: sha512-GULnMm3vMh1QEq6QUzZWV+AYB2NlZnov0Pj6tdtqXTjS+mOXkLYP/k8Vfb4ZEPVNSwHyjRZY08A5sbeRnurD2w==}
+  '@nrwl/linter@12.10.1':
+    resolution: {integrity: sha512-bOgEPWghTzqPZALhay18h9b0IHw7n+W+v+i9jWyVkl3lQjA4GVcJKspj5UMXGQd8Y1LEJhFc9BfuoIYs9c/fzQ==}
 
-  '@nrwl/storybook@12.10.0':
-    resolution: {integrity: sha512-V8yIXut6Lhr/2dXMcRSDOg75ro1JxZGN6EqjKCR/4Nq1B9YWa0lBzHc0FbQGvfCVEFTnaV57FUlc/xiKU+ddsA==}
+  '@nrwl/storybook@12.10.1':
+    resolution: {integrity: sha512-mY0Kh64CHQgDQNpSt9AnWkwJsaHCe/K9fbGBxmDQ3bxOQ9XH7pJQyOp3ePs2FhPgz3wVkiCUgYCahG06tGGSCw==}
 
-  '@nrwl/tao@12.10.0':
-    resolution: {integrity: sha512-YkdgTJJsDQlItVj25vW8zEen7BAra6i41Udd0v3CuxTSEXjJJnBD2KzEOGUxXS0gMg7+ILuw2rl9aOKu43TmVA==}
+  '@nrwl/tao@12.10.1':
+    resolution: {integrity: sha512-Fg6JjMCF7hM0N4i3bEuj8YxInczYmk0PrfzY3s1n5SJDViy6koqkZFpC3nFOmRtqZy9C+ghmVGPh8Zm3dT56ag==}
     hasBin: true
 
-  '@nrwl/workspace@12.10.0':
-    resolution: {integrity: sha512-3efkh/0DEOmQXnA2SlBcEk21QiM0vPaJt73CiYnocm1oy7/ngZDyhxYFxOJkVtsfRvR69Etj2JLonbIWa4Za5w==}
+  '@nrwl/workspace@12.10.1':
+    resolution: {integrity: sha512-14tkbJ2xYnKg3ZXUp+Uul+8uKLhzwFSq53vDg0qSMOszsRdw3ukgFvQHAUwVEDtQ4kNJtmUDaTqIRUE//6UCEQ==}
     peerDependencies:
       prettier: ^2.3.0
 
@@ -1317,36 +1317,42 @@ packages:
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm-musl@2.5.6':
     resolution: {integrity: sha512-Ve3gUCG57nuUUSyjBq/MAM0CzArtuIOxsBdQ+ftz6ho8n7s1i9E1Nmk/xmP323r2YL0SONs1EuwqBp2u1k5fxg==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-arm64-glibc@2.5.6':
     resolution: {integrity: sha512-f2g/DT3NhGPdBmMWYoxixqYr3v/UXcmLOYy16Bx0TM20Tchduwr4EaCbmxh1321TABqPGDpS8D/ggOTaljijOA==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm64-musl@2.5.6':
     resolution: {integrity: sha512-qb6naMDGlbCwdhLj6hgoVKJl2odL34z2sqkC7Z6kzir8b5W65WYDpLB6R06KabvZdgoHI/zxke4b3zR0wAbDTA==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-x64-glibc@2.5.6':
     resolution: {integrity: sha512-kbT5wvNQlx7NaGjzPFu8nVIW1rWqV780O7ZtkjuWaPUgpv2NMFpjYERVi0UYj1msZNyCzGlaCWEtzc+exjMGbQ==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-x64-musl@2.5.6':
     resolution: {integrity: sha512-1JRFeC+h7RdXwldHzTsmdtYR/Ku8SylLgTU/reMuqdVD7CtLwf0VR1FqeprZ0eHQkO0vqsbvFLXUmYm/uNKJBg==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-win32-arm64@2.5.6':
     resolution: {integrity: sha512-3ukyebjc6eGlw9yRt678DxVF7rjXatWiHvTXqphZLvo7aC5NdEgFufVwjFfY51ijYEWpXbqF5jtrK275z52D4Q==}
@@ -4697,8 +4703,8 @@ packages:
   nwsapi@2.2.23:
     resolution: {integrity: sha512-7wfH4sLbt4M0gCDzGE6vzQBo0bfTKjU7Sfpqy/7gs1qBfYz2vEJH6vXcBKpO3+6Yu1telwd0t9HpyOoLEQQbIQ==}
 
-  nx@12.10.0:
-    resolution: {integrity: sha512-LpCfZCWsVEtmD2SI1j2KRaw1uIyn4DJ3eRzsjnDYitbq38aORpkvYO+L0zVMZRNDSYSRGTsuj0nHCS3OOxK/Cg==}
+  nx@12.10.1:
+    resolution: {integrity: sha512-bDGTsY1waTh7OVLG2YRgTN7dkQ3bWgELGWxFUUdTMUw5+61mnuADGSgGRW75lm9pzBvU2IuSval96JtLxwzt7w==}
     hasBin: true
 
   object-assign@4.1.1:
@@ -6889,12 +6895,6 @@ snapshots:
       rxjs: 6.6.7
       tslib: 2.8.1
 
-  '@angular/common@12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)':
-    dependencies:
-      '@angular/core': 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
-      rxjs: 7.8.2
-      tslib: 2.8.1
-
   '@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5)':
     dependencies:
       '@angular/compiler': 12.2.17
@@ -6923,12 +6923,6 @@ snapshots:
   '@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8)':
     dependencies:
       rxjs: 6.6.7
-      tslib: 2.8.1
-      zone.js: 0.11.8
-
-  '@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8)':
-    dependencies:
-      rxjs: 7.8.2
       tslib: 2.8.1
       zone.js: 0.11.8
 
@@ -8460,7 +8454,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       '@types/node': 14.14.33
-      chalk: 4.1.0
+      chalk: 4.1.2
       jest-message-util: 27.5.1
       jest-util: 27.5.1
       slash: 3.0.0
@@ -8528,10 +8522,10 @@ snapshots:
     dependencies:
       '@bcoe/v8-coverage': 0.2.3
       '@jest/console': 27.5.1
-      '@jest/test-result': 27.2.2
+      '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      chalk: 4.1.0
+      chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit: 0.1.2
       glob: 7.2.3
@@ -8542,8 +8536,8 @@ snapshots:
       istanbul-lib-source-maps: 4.0.1
       istanbul-reports: 3.2.0
       jest-haste-map: 27.5.1
-      jest-resolve: 27.2.2
-      jest-util: 27.2.0
+      jest-resolve: 27.5.1
+      jest-util: 27.5.1
       jest-worker: 27.5.1
       slash: 3.0.0
       source-map: 0.6.1
@@ -8617,7 +8611,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@jest/types': 27.5.1
       babel-plugin-istanbul: 6.1.1
-      chalk: 4.1.0
+      chalk: 4.1.2
       convert-source-map: 1.9.0
       fast-json-stable-stringify: 2.1.0
       graceful-fs: 4.2.11
@@ -8638,7 +8632,7 @@ snapshots:
       '@types/istanbul-reports': 3.0.4
       '@types/node': 14.14.33
       '@types/yargs': 16.0.11
-      chalk: 4.1.0
+      chalk: 4.1.2
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -8707,7 +8701,7 @@ snapshots:
       npm-pick-manifest: 6.1.1
       promise-inflight: 1.0.1
       promise-retry: 2.0.1
-      semver: 7.3.5
+      semver: 7.7.3
       which: 2.0.2
     transitivePeerDependencies:
       - bluebird
@@ -8738,14 +8732,14 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@nrwl/angular@12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(rxjs@6.6.7)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
+  '@nrwl/angular@12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(rxjs@6.6.7)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
     dependencies:
       '@angular-devkit/schematics': 12.2.18
-      '@nrwl/cypress': 12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/jest': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
-      '@nrwl/linter': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
-      '@nrwl/storybook': 12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
+      '@nrwl/cypress': 12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/jest': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/linter': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/storybook': 12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
       '@phenomnomnominal/tsquery': 4.1.1(typescript@4.3.5)
       '@schematics/angular': 12.2.18
       ignore: 5.3.2
@@ -8768,20 +8762,20 @@ snapshots:
       - vue-template-compiler
       - webpack
 
-  '@nrwl/cli@12.10.0':
+  '@nrwl/cli@12.10.1':
     dependencies:
-      '@nrwl/tao': 12.10.0
+      '@nrwl/tao': 12.10.1
       chalk: 4.1.0
       v8-compile-cache: 2.3.0
       yargs: 15.4.1
       yargs-parser: 20.0.0
 
-  '@nrwl/cypress@12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
+  '@nrwl/cypress@12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
     dependencies:
       '@cypress/webpack-preprocessor': 4.1.5(webpack@5.50.0)
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/linter': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
-      '@nrwl/workspace': 12.10.0(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/linter': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/workspace': 12.10.1(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
       chalk: 4.1.0
       cypress: 8.7.0
       fork-ts-checker-webpack-plugin: 6.2.10(eslint@7.22.0)(typescript@4.3.5)(webpack@5.50.0)
@@ -8804,19 +8798,19 @@ snapshots:
       - vue-template-compiler
       - webpack
 
-  '@nrwl/devkit@12.10.0':
+  '@nrwl/devkit@12.10.1':
     dependencies:
-      '@nrwl/tao': 12.10.0
+      '@nrwl/tao': 12.10.1
       ejs: 3.1.10
       ignore: 5.3.2
       rxjs: 6.6.7
       semver: 7.3.4
       tslib: 2.8.1
 
-  '@nrwl/eslint-plugin-nx@12.10.0(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint-config-prettier@8.1.0(eslint@7.22.0))(eslint@7.22.0)(prettier@2.8.8)(typescript@4.3.5)':
+  '@nrwl/eslint-plugin-nx@12.10.1(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint-config-prettier@8.1.0(eslint@7.22.0))(eslint@7.22.0)(prettier@2.8.8)(typescript@4.3.5)':
     dependencies:
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/workspace': 12.10.0(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/workspace': 12.10.1(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
       '@typescript-eslint/experimental-utils': 4.31.2(eslint@7.22.0)(typescript@4.3.5)
       '@typescript-eslint/parser': 4.31.2(eslint@7.22.0)(typescript@4.3.5)
       confusing-browser-globals: 1.0.11
@@ -8833,11 +8827,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@nrwl/jest@12.10.0(ts-node@9.1.1(typescript@4.3.5))':
+  '@nrwl/jest@12.10.1(ts-node@9.1.1(typescript@4.3.5))':
     dependencies:
       '@jest/reporters': 27.2.2
       '@jest/test-result': 27.2.2
-      '@nrwl/devkit': 12.10.0
+      '@nrwl/devkit': 12.10.1
       chalk: 4.1.0
       identity-obj-proxy: 3.0.0
       jest-config: 27.2.2(ts-node@9.1.1(typescript@4.3.5))
@@ -8853,10 +8847,10 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@nrwl/linter@12.10.0(ts-node@9.1.1(typescript@4.3.5))':
+  '@nrwl/linter@12.10.1(ts-node@9.1.1(typescript@4.3.5))':
     dependencies:
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/jest': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/jest': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
       glob: 7.1.4
       minimatch: 3.0.4
       tmp: 0.2.5
@@ -8869,12 +8863,12 @@ snapshots:
       - ts-node
       - utf-8-validate
 
-  '@nrwl/storybook@12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
+  '@nrwl/storybook@12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)':
     dependencies:
-      '@nrwl/cypress': 12.10.0(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/linter': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
-      '@nrwl/workspace': 12.10.0(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/cypress': 12.10.1(cypress@8.7.0)(eslint@7.22.0)(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))(typescript@4.3.5)(webpack@5.50.0)
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/linter': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/workspace': 12.10.1(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))
       core-js: 3.48.0
       semver: 7.3.4
       ts-loader: 5.4.5(typescript@4.3.5)
@@ -8893,13 +8887,13 @@ snapshots:
       - vue-template-compiler
       - webpack
 
-  '@nrwl/tao@12.10.0':
+  '@nrwl/tao@12.10.1':
     dependencies:
       chalk: 4.1.0
       enquirer: 2.3.6
       fs-extra: 9.1.0
       jsonc-parser: 3.0.0
-      nx: 12.10.0
+      nx: 12.10.1
       rxjs: 6.6.7
       rxjs-for-await: 0.0.2(rxjs@6.6.7)
       semver: 7.3.4
@@ -8907,12 +8901,12 @@ snapshots:
       tslib: 2.8.1
       yargs-parser: 20.0.0
 
-  '@nrwl/workspace@12.10.0(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))':
+  '@nrwl/workspace@12.10.1(prettier@2.8.8)(ts-node@9.1.1(typescript@4.3.5))':
     dependencies:
-      '@nrwl/cli': 12.10.0
-      '@nrwl/devkit': 12.10.0
-      '@nrwl/jest': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
-      '@nrwl/linter': 12.10.0(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/cli': 12.10.1
+      '@nrwl/devkit': 12.10.1
+      '@nrwl/jest': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
+      '@nrwl/linter': 12.10.1(ts-node@9.1.1(typescript@4.3.5))
       '@parcel/watcher': 2.0.0-alpha.11
       chalk: 4.1.0
       chokidar: 3.6.0
@@ -9132,7 +9126,7 @@ snapshots:
 
   '@types/minimatch@6.0.0':
     dependencies:
-      minimatch: 3.0.4
+      minimatch: 5.1.6
 
   '@types/node@14.14.33': {}
 
@@ -9387,7 +9381,7 @@ snapshots:
 
   adjust-sourcemap-loader@4.0.0:
     dependencies:
-      loader-utils: 2.0.0
+      loader-utils: 2.0.4
       regex-parser: 2.3.1
 
   agent-base@6.0.2:
@@ -9585,7 +9579,7 @@ snapshots:
       '@types/babel__core': 7.20.5
       babel-plugin-istanbul: 6.1.1
       babel-preset-jest: 27.5.1(@babel/core@7.29.0)
-      chalk: 4.1.0
+      chalk: 4.1.2
       graceful-fs: 4.2.11
       slash: 3.0.0
     transitivePeerDependencies:
@@ -9844,7 +9838,7 @@ snapshots:
       '@npmcli/move-file': 1.1.2
       chownr: 2.0.0
       fs-minipass: 2.1.0
-      glob: 7.1.7
+      glob: 7.2.3
       infer-owner: 1.0.4
       lru-cache: 6.0.0
       minipass: 3.3.6
@@ -10248,7 +10242,7 @@ snapshots:
       postcss-modules-scope: 3.2.1(postcss@8.3.6)
       postcss-modules-values: 4.0.0(postcss@8.3.6)
       postcss-value-parser: 4.2.0
-      semver: 7.3.5
+      semver: 7.7.3
       webpack: 5.50.0
 
   css-minimizer-webpack-plugin@3.0.2(webpack@5.50.0):
@@ -11213,7 +11207,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.29.0
       '@types/json-schema': 7.0.15
-      chalk: 4.1.0
+      chalk: 4.1.2
       chokidar: 3.6.0
       cosmiconfig: 6.0.0
       deepmerge: 4.3.1
@@ -11373,7 +11367,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -11382,7 +11376,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -11420,7 +11414,7 @@ snapshots:
   globby@6.1.0:
     dependencies:
       array-union: 1.0.2
-      glob: 7.1.7
+      glob: 7.2.3
       object-assign: 4.1.1
       pify: 2.3.0
       pinkie-promise: 2.0.1
@@ -11932,7 +11926,7 @@ snapshots:
 
   istanbul-lib-instrument@4.0.3:
     dependencies:
-      '@babel/core': 7.14.8
+      '@babel/core': 7.29.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -11991,7 +11985,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.14.33
-      chalk: 4.1.0
+      chalk: 4.1.2
       co: 4.6.0
       dedent: 0.7.0
       expect: 27.5.1
@@ -12036,7 +12030,7 @@ snapshots:
       '@jest/test-sequencer': 27.5.1
       '@jest/types': 27.5.1
       babel-jest: 27.5.1(@babel/core@7.29.0)
-      chalk: 4.1.0
+      chalk: 4.1.2
       deepmerge: 4.3.1
       glob: 7.2.3
       graceful-fs: 4.2.11
@@ -12047,9 +12041,9 @@ snapshots:
       jest-get-type: 27.5.1
       jest-jasmine2: 27.5.1
       jest-regex-util: 27.5.1
-      jest-resolve: 27.2.2
+      jest-resolve: 27.5.1
       jest-runner: 27.5.1
-      jest-util: 27.2.0
+      jest-util: 27.5.1
       jest-validate: 27.5.1
       micromatch: 4.0.8
       pretty-format: 27.5.1
@@ -12109,7 +12103,7 @@ snapshots:
   jest-each@27.5.1:
     dependencies:
       '@jest/types': 27.5.1
-      chalk: 4.1.0
+      chalk: 4.1.2
       jest-get-type: 27.5.1
       jest-util: 27.5.1
       pretty-format: 27.5.1
@@ -12164,7 +12158,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.14.33
-      chalk: 4.1.0
+      chalk: 4.1.2
       co: 4.6.0
       expect: 27.5.1
       is-generator-fn: 2.1.0
@@ -12186,7 +12180,7 @@ snapshots:
 
   jest-matcher-utils@27.5.1:
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       jest-diff: 27.5.1
       jest-get-type: 27.5.1
       pretty-format: 27.5.1
@@ -12248,12 +12242,12 @@ snapshots:
   jest-resolve@27.2.2:
     dependencies:
       '@jest/types': 27.5.1
-      chalk: 4.1.0
+      chalk: 4.1.2
       escalade: 3.2.0
       graceful-fs: 4.2.11
       jest-haste-map: 27.5.1
       jest-pnp-resolver: 1.2.3(jest-resolve@27.2.2)
-      jest-util: 27.2.0
+      jest-util: 27.5.1
       jest-validate: 27.5.1
       resolve: 1.22.11
       slash: 3.0.0
@@ -12279,7 +12273,7 @@ snapshots:
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.14.33
-      chalk: 4.1.0
+      chalk: 4.1.2
       emittery: 0.8.1
       graceful-fs: 4.2.11
       jest-docblock: 27.5.1
@@ -12363,7 +12357,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       '@types/node': 14.14.33
-      chalk: 4.1.0
+      chalk: 4.1.2
       graceful-fs: 4.2.11
       is-ci: 3.0.1
       picomatch: 2.3.1
@@ -12381,7 +12375,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       camelcase: 6.3.0
-      chalk: 4.1.0
+      chalk: 4.1.2
       jest-get-type: 27.5.1
       leven: 3.1.0
       pretty-format: 27.5.1
@@ -12621,7 +12615,6 @@ snapshots:
       big.js: 5.2.2
       emojis-list: 3.0.0
       json5: 2.2.3
-    optional: true
 
   locate-path@3.0.0:
     dependencies:
@@ -13005,7 +12998,7 @@ snapshots:
       nopt: 5.0.0
       npmlog: 6.0.2
       rimraf: 3.0.2
-      semver: 7.3.5
+      semver: 7.7.3
       tar: 6.2.1
       which: 2.0.2
     transitivePeerDependencies:
@@ -13047,14 +13040,14 @@ snapshots:
 
   npm-install-checks@4.0.0:
     dependencies:
-      semver: 7.3.5
+      semver: 7.7.3
 
   npm-normalize-package-bin@1.0.1: {}
 
   npm-package-arg@8.1.5:
     dependencies:
       hosted-git-info: 4.1.0
-      semver: 7.3.5
+      semver: 7.7.3
       validate-npm-package-name: 3.0.0
 
   npm-packlist@3.0.0:
@@ -13069,7 +13062,7 @@ snapshots:
       npm-install-checks: 4.0.0
       npm-normalize-package-bin: 1.0.1
       npm-package-arg: 8.1.5
-      semver: 7.3.5
+      semver: 7.7.3
 
   npm-registry-fetch@11.0.0:
     dependencies:
@@ -13089,7 +13082,7 @@ snapshots:
       chalk: 2.4.2
       cross-spawn: 6.0.6
       memorystream: 0.3.1
-      minimatch: 3.0.4
+      minimatch: 3.1.2
       pidtree: 0.3.1
       read-pkg: 3.0.0
       shell-quote: 1.8.3
@@ -13118,9 +13111,9 @@ snapshots:
 
   nwsapi@2.2.23: {}
 
-  nx@12.10.0:
+  nx@12.10.1:
     dependencies:
-      '@nrwl/cli': 12.10.0
+      '@nrwl/cli': 12.10.1
 
   object-assign@4.1.1: {}
 
@@ -13534,7 +13527,7 @@ snapshots:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.3.6
-      semver: 7.3.5
+      semver: 7.7.3
       webpack: 5.50.0
 
   postcss-logical@3.0.0:
@@ -14091,11 +14084,11 @@ snapshots:
 
   rimraf@2.7.1:
     dependencies:
-      glob: 7.1.7
+      glob: 7.2.3
 
   rimraf@3.0.2:
     dependencies:
-      glob: 7.1.7
+      glob: 7.2.3
 
   rollup-plugin-sourcemaps@0.6.3(@types/node@14.14.33)(rollup@2.79.2):
     dependencies:
@@ -14651,7 +14644,7 @@ snapshots:
     dependencies:
       css-parse: 2.0.0
       debug: 3.1.0
-      glob: 7.1.7
+      glob: 7.2.3
       mkdirp: 1.0.4
       safer-buffer: 2.1.2
       sax: 1.2.4
@@ -14839,7 +14832,7 @@ snapshots:
 
   tsconfig-paths-webpack-plugin@3.4.1:
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       enhanced-resolve: 5.19.0
       tsconfig-paths: 3.15.0
 
