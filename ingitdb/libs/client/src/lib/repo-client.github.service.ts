@@ -1,21 +1,26 @@
 import {DbRef, RepoClient} from './repo-client.interface';
 import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
 import {Observable, throwError} from 'rxjs';
-import {IngitDbSchema} from '@ingitdb/schema';
 
+@Injectable()
 export class GithubRepoService implements RepoClient {
   constructor(
     private readonly http: HttpClient,
   ) {
   }
 
-  getSchema(dbRef: DbRef): Observable<IngitDbSchema> {
-    return throwError(() => 'not implemented yet');
+  branch(from: string, to: string): Observable<void> {
+    return throwError('Method not implemented.');
   }
 
-  getRaw<T>(db: DbRef, path: string): Observable<T> {
+  getFile<T>(db: DbRef, path: string): Observable<T> {
     const url = GithubRepoService.getRawUrl(db, path);
     return this.http.get<T>(url);
+  }
+
+  saveFile<T>(db: DbRef, path: string, raw: T): Observable<void> {
+    return throwError('Method not implemented.');
   }
 
   private static getRawUrl(db: DbRef, path: string): string {
@@ -28,7 +33,6 @@ export class GithubRepoService implements RepoClient {
       default:
         throw new Error('unknown host: ' + db.host);
     }
-    const dbPath = db.path || '/';
-    return `https://${host}/${db.org}/${db.rep}${dbPath}${path}`;
+    return `https://${host}/${db.org}/${db.repo}/${db.at}/${path}`;
   }
 }

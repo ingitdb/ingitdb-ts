@@ -1,21 +1,36 @@
-export interface IngitDbSchema {
-  collections: IngitDbCollection[];
+export interface DbSchema {
+  collections: CollectionSchema[];
 }
 
-export interface IngitDbCollection {
+export interface CollectionSchema {
   id: string;
   path: string;
+  fields: CollectionField[];
+  readme?: Readme;
   views?: View[];
   title?: string;
   description?: string;
 }
 
-export interface View {
+export interface CollectionField {
   id: string;
-  columns: Col[];
+  type: 'string' | 'number' | 'boolean';
+  required?: boolean
+  title?: string;
 }
 
-export interface Col {
+export interface Readme {
+  view: string;
+  format: 'ul' | 'ol' | 'table';
+  columns: string[];
+}
+
+export interface View {
+  id: string;
+  columns: ViewCol[];
+}
+
+export interface ViewCol {
   id: string;
   title?: string;
   type: 'string' | 'number';

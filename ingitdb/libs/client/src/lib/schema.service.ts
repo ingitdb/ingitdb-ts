@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {IngitDbSchema} from '@ingitdb/schema';
+import {DbSchema} from '@ingitdb/schema';
 import {Observable} from 'rxjs';
 import {DbRef} from './repo-client.interface';
 import {RepoClientFactoryService} from './repo-client-factory.service';
@@ -14,9 +14,9 @@ export class SchemaService {
   ) {
   }
 
-  getSchema(db: DbRef): Observable<IngitDbSchema> {
+  getSchema(db: DbRef): Observable<DbSchema> {
     const client = this.clientFactory.getRepoClient(db.host);
-    return client.getRaw<IngitDbSchema>(db, '.ingitdb/schema.json');
+    return client.getFile<DbSchema>(db, '.ingitdb/schema.json');
   }
 }
 

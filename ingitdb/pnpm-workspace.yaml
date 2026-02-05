@@ -1,0 +1,13 @@
+ignoredBuiltDependencies:
+  - cypress
+
+onlyBuiltDependencies:
+  - '@angular/cli'
+  - '@nrwl/angular'
+  - '@parcel/watcher'
+  - core-js
+  - core-js-pure
+  - esbuild
+  - fsevents
+  - less
+  - nice-napi

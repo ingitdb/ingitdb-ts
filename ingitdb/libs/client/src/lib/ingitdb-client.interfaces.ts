@@ -1,6 +1,6 @@
-import {Col} from '@ingitdb/schema';
+import {ViewCol} from '@ingitdb/schema';
 
 export interface List {
-  columns: Col[];
+  columns: ViewCol[];
   rows: any[];
 }
