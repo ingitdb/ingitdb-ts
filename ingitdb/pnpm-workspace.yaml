@@ -1,6 +1,11 @@
 ignoredBuiltDependencies:
   - cypress
 
+packages:
+  - "."
+  - "apps/*"
+  - "libs/*"
+
 onlyBuiltDependencies:
   - '@angular/cli'
   - '@nrwl/angular'
