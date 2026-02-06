@@ -47,7 +47,7 @@ importers:
     devDependencies:
       '@angular-devkit/build-angular':
         specifier: ~12.2.9
-        version: 12.2.18(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5))(typescript@4.3.5)
+        version: 12.2.18(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.18.63)(tslib@2.8.1)(typescript@4.3.5))(typescript@4.3.5)
       '@angular-eslint/eslint-plugin':
         specifier: ~12.7.0
         version: 12.7.0(eslint@7.22.0)(typescript@4.3.5)
@@ -91,8 +91,8 @@ importers:
         specifier: 27.0.2
         version: 27.0.2
       '@types/node':
-        specifier: 14.14.33
-        version: 14.14.33
+        specifier: 14.18.63
+        version: 14.18.63
       '@typescript-eslint/eslint-plugin':
         specifier: ~4.31.2
         version: 4.31.2(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint@7.22.0)(typescript@4.3.5)
@@ -119,7 +119,7 @@ importers:
         version: 10.0.1(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(@angular/platform-browser-dynamic@12.2.17(@angular/common@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7))(@angular/compiler@12.2.17)(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(@angular/platform-browser@12.2.17(@angular/animations@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8)))(@angular/common@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7))(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))))(@babel/core@7.29.0)(@types/jest@27.0.2)(babel-jest@27.5.1(@babel/core@7.29.0))(jest@27.2.3(ts-node@9.1.1(typescript@4.3.5)))(typescript@4.3.5)
       ng-packagr:
         specifier: ^12.2.3
-        version: 12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5)
+        version: 12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.18.63)(tslib@2.8.1)(typescript@4.3.5)
       prettier:
         specifier: ^2.4.1
         version: 2.8.8
@@ -1487,8 +1487,8 @@ packages:
     resolution: {integrity: sha512-zmPitbQ8+6zNutpwgcQuLcsEpn/Cj54Kbn7L5pX0Os5kdWplB7xPgEh/g+SWOB/qmows2gpuCaPyduq8ZZRnxA==}
     deprecated: This is a stub types definition. minimatch provides its own type definitions, so you do not need this installed.
 
-  '@types/node@14.14.33':
-    resolution: {integrity: sha512-oJqcTrgPUF29oUP8AsUqbXGJNuPutsetaa9kTQAQce5Lx5dTYWV02ScBiT/k1BX/Z7pKeqedmvp39Wu4zR7N7g==}
+  '@types/node@14.18.63':
+    resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -6718,7 +6718,7 @@ snapshots:
       '@angular-devkit/core': 12.2.18
       rxjs: 6.6.7
 
-  '@angular-devkit/build-angular@12.2.18(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5))(typescript@4.3.5)':
+  '@angular-devkit/build-angular@12.2.18(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.18.63)(tslib@2.8.1)(typescript@4.3.5))(typescript@4.3.5)':
     dependencies:
       '@ampproject/remapping': 1.0.1
       '@angular-devkit/architect': 0.1202.18
@@ -6793,7 +6793,7 @@ snapshots:
       webpack-subresource-integrity: 1.5.2(webpack@5.50.0)
     optionalDependencies:
       esbuild: 0.13.8
-      ng-packagr: 12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5)
+      ng-packagr: 12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.18.63)(tslib@2.8.1)(typescript@4.3.5)
     transitivePeerDependencies:
       - bluebird
       - bufferutil
@@ -8470,7 +8470,7 @@ snapshots:
   '@jest/console@27.5.1':
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.0
       jest-message-util: 27.5.1
       jest-util: 27.5.1
@@ -8483,7 +8483,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
@@ -8517,14 +8517,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       jest-mock: 27.5.1
 
   '@jest/fake-timers@27.5.1':
     dependencies:
       '@jest/types': 27.5.1
       '@sinonjs/fake-timers': 8.1.0
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       jest-message-util: 27.5.1
       jest-mock: 27.5.1
       jest-util: 27.5.1
@@ -8571,7 +8571,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit: 0.1.2
@@ -8647,7 +8647,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       '@types/yargs': 16.0.11
       chalk: 4.1.0
 
@@ -9116,11 +9116,11 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 6.0.0
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -9145,7 +9145,7 @@ snapshots:
     dependencies:
       minimatch: 3.0.4
 
-  '@types/node@14.14.33': {}
+  '@types/node@14.18.63': {}
 
   '@types/parse-json@4.0.2': {}
 
@@ -9153,7 +9153,7 @@ snapshots:
 
   '@types/resolve@1.17.1':
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
 
   '@types/sinonjs__fake-timers@6.0.4': {}
 
@@ -9165,7 +9165,7 @@ snapshots:
 
   '@types/webpack-sources@0.1.12':
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       '@types/source-list-map': 0.1.6
       source-map: 0.6.1
 
@@ -9177,7 +9177,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
     optional: true
 
   '@typescript-eslint/eslint-plugin@4.31.2(@typescript-eslint/parser@4.31.2(eslint@7.22.0)(typescript@4.3.5))(eslint@7.22.0)(typescript@4.3.5)':
@@ -10371,7 +10371,7 @@ snapshots:
     dependencies:
       '@cypress/request': 2.88.12
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       '@types/sinonjs__fake-timers': 6.0.4
       '@types/sizzle': 2.3.10
       arch: 2.2.0
@@ -12001,7 +12001,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.0
       co: 4.6.0
       dedent: 0.7.0
@@ -12130,7 +12130,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       jest-mock: 27.5.1
       jest-util: 27.5.1
       jsdom: 16.7.0
@@ -12145,7 +12145,7 @@ snapshots:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       jest-mock: 27.5.1
       jest-util: 27.5.1
 
@@ -12155,7 +12155,7 @@ snapshots:
     dependencies:
       '@jest/types': 27.5.1
       '@types/graceful-fs': 4.1.9
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -12174,7 +12174,7 @@ snapshots:
       '@jest/source-map': 27.5.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.0
       co: 4.6.0
       expect: 27.5.1
@@ -12217,7 +12217,7 @@ snapshots:
   jest-mock@27.5.1:
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
 
   jest-pnp-resolver@1.2.3(jest-resolve@27.2.2):
     optionalDependencies:
@@ -12289,7 +12289,7 @@ snapshots:
       '@jest/test-result': 27.5.1
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.0
       emittery: 0.8.1
       graceful-fs: 4.2.11
@@ -12340,7 +12340,7 @@ snapshots:
 
   jest-serializer@27.5.1:
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       graceful-fs: 4.2.11
 
   jest-snapshot@27.5.1:
@@ -12373,7 +12373,7 @@ snapshots:
   jest-util@27.2.0:
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.0
       graceful-fs: 4.2.11
       is-ci: 3.0.1
@@ -12382,7 +12382,7 @@ snapshots:
   jest-util@27.5.1:
     dependencies:
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -12401,7 +12401,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       jest-util: 27.5.1
@@ -12409,7 +12409,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -12952,7 +12952,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5):
+  ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.18.63)(tslib@2.8.1)(typescript@4.3.5):
     dependencies:
       '@angular/compiler-cli': 12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5)
       '@rollup/plugin-commonjs': 20.0.0(rollup@2.79.2)
@@ -12977,7 +12977,7 @@ snapshots:
       postcss-preset-env: 6.7.2
       postcss-url: 10.1.3(postcss@8.5.6)
       rollup: 2.79.2
-      rollup-plugin-sourcemaps: 0.6.3(@types/node@14.14.33)(rollup@2.79.2)
+      rollup-plugin-sourcemaps: 0.6.3(@types/node@14.18.63)(rollup@2.79.2)
       rxjs: 6.6.7
       sass: 1.97.3
       stylus: 0.54.8
@@ -14108,13 +14108,13 @@ snapshots:
     dependencies:
       glob: 7.1.7
 
-  rollup-plugin-sourcemaps@0.6.3(@types/node@14.14.33)(rollup@2.79.2):
+  rollup-plugin-sourcemaps@0.6.3(@types/node@14.18.63)(rollup@2.79.2):
     dependencies:
       '@rollup/pluginutils': 3.1.0(rollup@2.79.2)
       rollup: 2.79.2
       source-map-resolve: 0.6.0
     optionalDependencies:
-      '@types/node': 14.14.33
+      '@types/node': 14.18.63
 
   rollup@2.79.2:
     optionalDependencies:
