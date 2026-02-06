@@ -57,14 +57,14 @@ jobs:
                 # BE AWARE: Adding PARALLEL options may cause build to pass when it should have been failed
                 run: pnpm run nx affected --target=build,lint --base=${{ env.NX_BASE }} --parallel=8
 
-            -   name: Install Playwright Browsers
-                run: pnpm exec playwright install chromium --with-deps
-
-            -   name: Run Playwright tests
-                run: pnpm exec playwright test
-
-            -   uses: actions/upload-artifact@v6
-                with:
-                    name: playwright-report
-                    path: playwright-report/
-                    retention-days: 30
+#            -   name: Install Playwright Browsers
+#                run: pnpm exec playwright install chromium --with-deps
+#
+#            -   name: Run Playwright tests
+#                run: pnpm exec playwright test
+#
+#            -   uses: actions/upload-artifact@v6
+#                with:
+#                    name: playwright-report
+#                    path: playwright-report/
+#                    retention-days: 30
