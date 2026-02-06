@@ -23,6 +23,9 @@ jobs:
     build-lint-e2e:
         #        needs: pnpm-cache
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: nxws
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v6
@@ -59,8 +62,6 @@ jobs:
 
             -   name: Run Playwright tests
                 run: pnpm exec playwright test
-                env:
-                    NODE_OPTIONS: "--no-deprecation nx"
 
             -   uses: actions/upload-artifact@v6
                 with:
