@@ -51,7 +51,7 @@
     "@typescript-eslint/utils": "8.54.0",
     "@vitest/coverage-v8": "4.0.18",
     "angular-eslint": "^21.0.1",
-    "esbuild": "0.25.0",
+    "esbuild": "0.27.3",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-playwright": "^1.6.2",
