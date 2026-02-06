@@ -10,8 +10,8 @@ export class GithubRepoService implements RepoClient {
   ) {
   }
 
-  branch(from: string, to: string): Observable<void> {
-    return throwError('Method not implemented.');
+  branch(_from: string, _to: string): Observable<void> {
+    return throwError(() => new Error('Method not implemented.'));
   }
 
   getFile<T>(db: DbRef, path: string): Observable<T> {
@@ -19,8 +19,8 @@ export class GithubRepoService implements RepoClient {
     return this.http.get<T>(url);
   }
 
-  saveFile<T>(db: DbRef, path: string, raw: T): Observable<void> {
-    return throwError('Method not implemented.');
+  saveFile<T>(_db: DbRef, _path: string, _raw: T): Observable<void> {
+    return throwError(() => new Error('Method not implemented.'));
   }
 
   private static getRawUrl(db: DbRef, path: string): string {

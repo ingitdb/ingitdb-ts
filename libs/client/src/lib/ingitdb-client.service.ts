@@ -39,23 +39,23 @@ export class IngitDbClient implements IngitDB {
     this.schema$ = getSchema();
   }
 
-  getDbSchema(db: DbRef): Observable<DbSchema> {
+  getDbSchema(_db: DbRef): Observable<DbSchema> {
     throw new Error('Method not implemented.');
   }
 
-  getCollectionSchema(db: DbRef): Observable<CollectionSchema> {
+  getCollectionSchema(_db: DbRef): Observable<CollectionSchema> {
     throw new Error('Method not implemented.');
   }
 
-  deleteRows(db: DbRef, collection: string, ids: string): Observable<void> {
+  deleteRows(_db: DbRef, _collection: string, _ids: string): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
-  addRows(db: DbRef, collection: string, rows: Row[]): Observable<void> {
+  addRows(_db: DbRef, _collection: string, _rows: Row[]): Observable<void> {
     throw new Error('Method not implemented.');
   }
 
-  getRecord(collection: string, id: string): unknown {
+  getRecord(_collection: string, _id: string): unknown {
     throw new Error('not implemented yet')
   }
 
@@ -66,7 +66,7 @@ export class IngitDbClient implements IngitDB {
         if (!collection) {
           return throwError(() => 'unknown collection: ' + collectionId);
         }
-        return this.repoClient.getFile<any[]>(this.db, `${collection.path}/${view}.json`)
+        return this.repoClient.getFile<Row[]>(this.db, `${collection.path}/${view}.json`)
       })
     );
   }

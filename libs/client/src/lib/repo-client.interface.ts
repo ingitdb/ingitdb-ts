@@ -13,6 +13,7 @@ export function dbRefPath(db: DbRef): string {
 }
 
 export interface Row {
+  [key: string]: unknown;
 }
 
 export interface IngitDB {
