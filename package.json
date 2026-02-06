@@ -2,7 +2,9 @@
   "name": "@ingitdb/ingitdb-ts",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "nx": "NODE_OPTIONS=--no-deprecation nx"
+  },
   "private": true,
   "dependencies": {
     "@angular-devkit/build-angular": "21.1.3",
