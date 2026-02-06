@@ -49,14 +49,14 @@ importers:
         specifier: ~12.2.9
         version: 12.2.18(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(ng-packagr@12.2.7(@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5))(@types/node@14.14.33)(tslib@2.8.1)(typescript@4.3.5))(typescript@4.3.5)
       '@angular-eslint/eslint-plugin':
-        specifier: ~12.3.1
-        version: 12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)
+        specifier: ~12.7.0
+        version: 12.7.0(eslint@7.22.0)(typescript@4.3.5)
       '@angular-eslint/eslint-plugin-template':
-        specifier: ~12.3.1
-        version: 12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)
+        specifier: ~12.7.0
+        version: 12.7.0(eslint@7.22.0)(typescript@4.3.5)
       '@angular-eslint/template-parser':
-        specifier: ~12.3.1
-        version: 12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)
+        specifier: ~12.7.0
+        version: 12.7.0(eslint@7.22.0)(typescript@4.3.5)
       '@angular/cli':
         specifier: ~12.2.9
         version: 12.2.18
@@ -134,10 +134,10 @@ importers:
     dependencies:
       '@angular/common':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)
+        version: 12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7)
       '@angular/core':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
+        version: 12.2.17(rxjs@6.6.7)(zone.js@0.11.8)
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -146,10 +146,10 @@ importers:
     dependencies:
       '@angular/common':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)
+        version: 12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))(rxjs@6.6.7)
       '@angular/core':
         specifier: ^12.2.0 || ^17.0.0
-        version: 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
+        version: 12.2.17(rxjs@6.6.7)(zone.js@0.11.8)
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -218,24 +218,30 @@ packages:
     resolution: {integrity: sha512-bZ9NS5PgoVfetRC6WeQBHCY5FqPZ9y2TKHUo12sOB2YSL3tgWgh1oXyP8PtX34gasqsLjNULxEQsAQYEsiX/qQ==}
     engines: {node: ^12.14.1 || >=14.0.0, npm: ^6.11.0 || ^7.5.6 || >=8.0.0, yarn: '>= 1.13.0'}
 
-  '@angular-eslint/eslint-plugin-template@12.3.1':
-    resolution: {integrity: sha512-pz+nO64ma/9Sp2aeRnQ+Vktt7Fo1Lay/J+CG//3TIc3lYsoCTj4h42P6yCcxxJ9b4N7SUxMAnchA8eE5mJS4Ug==}
+  '@angular-eslint/bundled-angular-compiler@12.7.0':
+    resolution: {integrity: sha512-n7nUSIK+bl2DQXIPRyts/xVTw94Mk0rRNd2WBCL9ni27XKOhKtTdP7tLpD+nAiuY4BTTJr7/yTzPWCCRDQgWZg==}
+
+  '@angular-eslint/eslint-plugin-template@12.7.0':
+    resolution: {integrity: sha512-G/UIifRNZuk0Vc3Q2bjAvRa2MMMCSuSzW3E9QAvSr0n4QkhIJwDJvyR/KV1ubswgHB0RRkYcfGQ8d6VKA5Vqjw==}
     peerDependencies:
-      '@angular/compiler': '>= 12.0.0 < 13.0.0'
       eslint: '*'
       typescript: '*'
 
-  '@angular-eslint/eslint-plugin@12.3.1':
-    resolution: {integrity: sha512-KBm27onYggRcusA/BxuSkDGpVnIs8yG4ARio8ZAhe0H2XIRJTzJZ7oIBBjugDau03AGX3VMG6wAXailjJvsywg==}
+  '@angular-eslint/eslint-plugin@12.7.0':
+    resolution: {integrity: sha512-TTTimCddON6TdGw3NDglgWqnrP2VLFiAA+FJAg/iiCKKVI+XOddtpDXmeHmas8cHIJXJH1WNxrae394DpThiOA==}
     peerDependencies:
-      '@angular/compiler': '>= 12.0.0 < 13.0.0'
       eslint: '*'
       typescript: '*'
 
-  '@angular-eslint/template-parser@12.3.1':
-    resolution: {integrity: sha512-6DkXqTaVEHZdcN3isHQ2CDoTsKLuJ5C1SYEOuFzOU1Zp85SvjxO92v6gPkFPKk0iQNVRmQS2XcKef6weehUUGA==}
+  '@angular-eslint/template-parser@12.7.0':
+    resolution: {integrity: sha512-bTGRZ/2m2Z/MCoazWnpbPWLSBK8AsnHCuCXAgiiveYql0GD+PySP1EkBuiWesIyxCsYdzf4aQciJSVuQRo9jEQ==}
     peerDependencies:
-      '@angular/compiler': '>= 12.0.0 < 13.0.0'
+      eslint: '*'
+      typescript: '*'
+
+  '@angular-eslint/utils@12.7.0':
+    resolution: {integrity: sha512-1yyRxtxXg6VoyU8wUDcaZEdN7oDE0pRRCUZsQBGungPSv5PQt4nlv+9ZnjJ93rVMEoGztHD2CBWeoRtNlqvg4A==}
+    peerDependencies:
       eslint: '*'
       typescript: '*'
 
@@ -1317,36 +1323,42 @@ packages:
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm-musl@2.5.6':
     resolution: {integrity: sha512-Ve3gUCG57nuUUSyjBq/MAM0CzArtuIOxsBdQ+ftz6ho8n7s1i9E1Nmk/xmP323r2YL0SONs1EuwqBp2u1k5fxg==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-arm64-glibc@2.5.6':
     resolution: {integrity: sha512-f2g/DT3NhGPdBmMWYoxixqYr3v/UXcmLOYy16Bx0TM20Tchduwr4EaCbmxh1321TABqPGDpS8D/ggOTaljijOA==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-arm64-musl@2.5.6':
     resolution: {integrity: sha512-qb6naMDGlbCwdhLj6hgoVKJl2odL34z2sqkC7Z6kzir8b5W65WYDpLB6R06KabvZdgoHI/zxke4b3zR0wAbDTA==}
     engines: {node: '>= 10.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-linux-x64-glibc@2.5.6':
     resolution: {integrity: sha512-kbT5wvNQlx7NaGjzPFu8nVIW1rWqV780O7ZtkjuWaPUgpv2NMFpjYERVi0UYj1msZNyCzGlaCWEtzc+exjMGbQ==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@parcel/watcher-linux-x64-musl@2.5.6':
     resolution: {integrity: sha512-1JRFeC+h7RdXwldHzTsmdtYR/Ku8SylLgTU/reMuqdVD7CtLwf0VR1FqeprZ0eHQkO0vqsbvFLXUmYm/uNKJBg==}
     engines: {node: '>= 10.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@parcel/watcher-win32-arm64@2.5.6':
     resolution: {integrity: sha512-3ukyebjc6eGlw9yRt678DxVF7rjXatWiHvTXqphZLvo7aC5NdEgFufVwjFfY51ijYEWpXbqF5jtrK275z52D4Q==}
@@ -6826,9 +6838,11 @@ snapshots:
       ora: 5.4.1
       rxjs: 6.6.7
 
-  '@angular-eslint/eslint-plugin-template@12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)':
+  '@angular-eslint/bundled-angular-compiler@12.7.0': {}
+
+  '@angular-eslint/eslint-plugin-template@12.7.0(eslint@7.22.0)(typescript@4.3.5)':
     dependencies:
-      '@angular/compiler': 12.2.17
+      '@angular-eslint/bundled-angular-compiler': 12.7.0
       '@typescript-eslint/experimental-utils': 4.28.2(eslint@7.22.0)(typescript@4.3.5)
       aria-query: 4.2.2
       axobject-query: 2.2.0
@@ -6837,21 +6851,30 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@angular-eslint/eslint-plugin@12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)':
+  '@angular-eslint/eslint-plugin@12.7.0(eslint@7.22.0)(typescript@4.3.5)':
     dependencies:
-      '@angular/compiler': 12.2.17
+      '@angular-eslint/utils': 12.7.0(eslint@7.22.0)(typescript@4.3.5)
       '@typescript-eslint/experimental-utils': 4.28.2(eslint@7.22.0)(typescript@4.3.5)
       eslint: 7.22.0
       typescript: 4.3.5
     transitivePeerDependencies:
       - supports-color
 
-  '@angular-eslint/template-parser@12.3.1(@angular/compiler@12.2.17)(eslint@7.22.0)(typescript@4.3.5)':
+  '@angular-eslint/template-parser@12.7.0(eslint@7.22.0)(typescript@4.3.5)':
     dependencies:
-      '@angular/compiler': 12.2.17
+      '@angular-eslint/bundled-angular-compiler': 12.7.0
       eslint: 7.22.0
       eslint-scope: 5.1.1
       typescript: 4.3.5
+
+  '@angular-eslint/utils@12.7.0(eslint@7.22.0)(typescript@4.3.5)':
+    dependencies:
+      '@angular-eslint/bundled-angular-compiler': 12.7.0
+      '@typescript-eslint/experimental-utils': 4.28.2(eslint@7.22.0)(typescript@4.3.5)
+      eslint: 7.22.0
+      typescript: 4.3.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@angular/animations@12.2.17(@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8))':
     dependencies:
@@ -6889,12 +6912,6 @@ snapshots:
       rxjs: 6.6.7
       tslib: 2.8.1
 
-  '@angular/common@12.2.17(@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8))(rxjs@7.8.2)':
-    dependencies:
-      '@angular/core': 12.2.17(rxjs@7.8.2)(zone.js@0.11.8)
-      rxjs: 7.8.2
-      tslib: 2.8.1
-
   '@angular/compiler-cli@12.2.17(@angular/compiler@12.2.17)(typescript@4.3.5)':
     dependencies:
       '@angular/compiler': 12.2.17
@@ -6923,12 +6940,6 @@ snapshots:
   '@angular/core@12.2.17(rxjs@6.6.7)(zone.js@0.11.8)':
     dependencies:
       rxjs: 6.6.7
-      tslib: 2.8.1
-      zone.js: 0.11.8
-
-  '@angular/core@12.2.17(rxjs@7.8.2)(zone.js@0.11.8)':
-    dependencies:
-      rxjs: 7.8.2
       tslib: 2.8.1
       zone.js: 0.11.8
 
@@ -13005,7 +13016,7 @@ snapshots:
       nopt: 5.0.0
       npmlog: 6.0.2
       rimraf: 3.0.2
-      semver: 7.3.5
+      semver: 7.7.3
       tar: 6.2.1
       which: 2.0.2
     transitivePeerDependencies:
