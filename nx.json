@@ -45,17 +45,17 @@
       }
     },
     {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "lint"
-      }
-    },
-    {
       "plugin": "@nx/vitest",
       "options": {
         "testTargetName": "test",
         "ciTargetName": "test-ci",
         "testMode": "watch"
+      }
+    },
+    {
+      "plugin": "nx-oxlint",
+      "options": {
+        "lintTargetName": "lint"
       }
     }
   ],
