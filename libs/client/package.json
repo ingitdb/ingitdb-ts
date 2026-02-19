@@ -6,8 +6,8 @@
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "dependencies": {
-    "@angular/common": "21.1.3",
-    "@angular/core": "21.1.3",
+    "@angular/common": "21.1.5",
+    "@angular/core": "21.1.5",
     "@ingitdb/schema": "workspace:*",
     "rxjs": "7.8.2",
     "@nx/vite": "22.4.5",
