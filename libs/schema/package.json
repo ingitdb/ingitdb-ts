@@ -6,8 +6,8 @@
   "main": "./index.cjs",
   "types": "./index.d.ts",
   "peerDependencies": {
-    "@angular/core": "21.1.3",
-    "@angular/common": "21.1.3",
+    "@angular/core": "21.1.5",
+    "@angular/common": "21.1.5",
     "vitest": "4.0.18",
     "@nx/vite": "22.4.5"
   },
