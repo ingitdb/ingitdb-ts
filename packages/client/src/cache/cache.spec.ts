@@ -1,22 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { cache, createCache, buildCacheKey } from './cache'
+import type { StorageAdapter } from './cache'
 
-// ---------- mock idb-cache ------------------------------------------------
-const idbStore = vi.hoisted(() => new Map<string, unknown>())
-
-vi.mock('./idb-cache', () => ({
-  idbCache: {
-    get: vi.fn((key: string) => Promise.resolve(idbStore.get(key))),
-    set: vi.fn((key: string, value: unknown) => { idbStore.set(key, value); return Promise.resolve() }),
-    delete: vi.fn((key: string) => { idbStore.delete(key); return Promise.resolve() }),
-    clear: vi.fn(() => { idbStore.clear(); return Promise.resolve() }),
-    keys: vi.fn(() => Promise.resolve([...idbStore.keys()]))
+// ---------- helpers -------------------------------------------------------
+const makeAdapter = (): StorageAdapter & { store: Map<string, unknown> } => {
+  const store = new Map<string, unknown>()
+  return {
+    store,
+    get: vi.fn((key: string) => Promise.resolve(store.get(key))),
+    set: vi.fn((key: string, value: unknown) => { store.set(key, value); return Promise.resolve() }),
+    delete: vi.fn((key: string) => { store.delete(key); return Promise.resolve() }),
+    clear: vi.fn(() => { store.clear(); return Promise.resolve() })
   }
-}))
+}
 
-const { cache, buildCacheKey } = await import('./cache')
-const { idbCache } = await import('./idb-cache')
-
-// ---------- tests ---------------------------------------------------------
+// ---------- buildCacheKey -------------------------------------------------
 describe('buildCacheKey', () => {
   it('joins parts with : and prefixes with ingitdb:', () => {
     expect(buildCacheKey('a', 'b', 'c')).toBe('ingitdb:a:b:c')
@@ -27,94 +25,101 @@ describe('buildCacheKey', () => {
   })
 })
 
-describe('cache', () => {
-  beforeEach(async () => {
+// ---------- default memory-only cache singleton ---------------------------
+describe('cache (memory-only)', () => {
+  beforeEach(async () => { await cache.clear() })
+
+  it('set stores a value and get retrieves it', async () => {
+    expect(await cache.set('k', 'v')).toBe('v')
+    expect(await cache.get('k')).toBe('v')
+  })
+
+  it('get returns null for a missing key', async () => {
+    expect(await cache.get('nope')).toBeNull()
+  })
+
+  it('delete removes the value', async () => {
+    await cache.set('k', 'v')
+    await cache.delete('k')
+    expect(await cache.get('k')).toBeNull()
+  })
+
+  it('clear removes all entries', async () => {
+    await cache.set('a', 1)
+    await cache.set('b', 2)
     await cache.clear()
-    vi.clearAllMocks()
-    idbStore.clear()
+    expect(await cache.get('a')).toBeNull()
+    expect(await cache.get('b')).toBeNull()
   })
 
-  // ── set ─────────────────────────────────────────────────────────────────
-  describe('set', () => {
-    it('stores value in memory and IDB, returns the value', async () => {
-      const returned = await cache.set('key', 'hello')
-      expect(returned).toBe('hello')
-      const result = await cache.get('key')
-      expect(result).toBe('hello')
-    })
+  it('returns null for expired entries', async () => {
+    const now = 1_000_000
+    vi.spyOn(Date, 'now').mockReturnValue(now)
+    await cache.set('k', 'val', 100)
+    vi.spyOn(Date, 'now').mockReturnValue(now + 200)
+    expect(await cache.get('k')).toBeNull()
+    vi.restoreAllMocks()
   })
 
-  // ── get ─────────────────────────────────────────────────────────────────
-  describe('get', () => {
-    it('returns cached value from memory (not expired)', async () => {
-      await cache.set('key', 'from-mem')
-      const result = await cache.get('key')
-      expect(result).toBe('from-mem')
-    })
+  it('treats Infinity TTL as never-expired', async () => {
+    await cache.set('k', 'eternal', Infinity)
+    expect(await cache.get('k')).toBe('eternal')
+  })
+})
 
-    it('returns null for missing key (memory miss + IDB miss)', async () => {
-      expect(await cache.get('nope')).toBeNull()
-    })
+// ---------- createCache with adapter (persistent cache) -------------------
+describe('createCache(adapter)', () => {
+  let adapter: ReturnType<typeof makeAdapter>
+  let c: ReturnType<typeof createCache>
 
-    it('returns null for expired in-memory entry and deletes from IDB', async () => {
-      const now = 1_000_000
-      vi.spyOn(Date, 'now').mockReturnValue(now)
-      await cache.set('key', 'val', 100)            // expiresAt = 1_000_100
-      vi.spyOn(Date, 'now').mockReturnValue(now + 200) // past expiry
-      expect(await cache.get('key')).toBeNull()
-      // idbCache.delete should have been called for the expired IDB entry
-      expect(idbCache.delete).toHaveBeenCalledWith('key')
-      vi.restoreAllMocks()
-    })
-
-    it('falls back to IDB on memory miss and stores in memory', async () => {
-      // Clear everything, then put directly in IDB
-      await cache.clear()
-      idbStore.clear()
-      const entry = { value: 'from-idb', updatedAt: Date.now(), expiresAt: Date.now() + 60_000 }
-      idbStore.set('key', entry)
-
-      const result = await cache.get('key')
-      expect(result).toBe('from-idb')
-      // On second call, should come from memory (no extra IDB get)
-      vi.mocked(idbCache.get).mockClear()
-      const result2 = await cache.get('key')
-      expect(result2).toBe('from-idb')
-    })
-
-    it('returns null and deletes expired IDB entry (persisted exists but expired)', async () => {
-      await cache.clear()
-      idbStore.clear()
-      const entry = { value: 'expired', updatedAt: 1000, expiresAt: 1000 }
-      idbStore.set('key', entry)
-      expect(await cache.get('key')).toBeNull()
-      expect(idbCache.delete).toHaveBeenCalledWith('key')
-    })
-
-    it('treats non-finite expiresAt (Infinity) as never expired', async () => {
-      await cache.set('key', 'eternal', Infinity) // expiresAt = Infinity
-      const result = await cache.get('key')
-      expect(result).toBe('eternal')
-    })
+  beforeEach(async () => {
+    adapter = makeAdapter()
+    c = createCache(adapter)
   })
 
-  // ── delete ──────────────────────────────────────────────────────────────
-  describe('delete', () => {
-    it('removes from memory and IDB', async () => {
-      await cache.set('key', 'val')
-      await cache.delete('key')
-      expect(await cache.get('key')).toBeNull()
-    })
+  it('set writes to memory and adapter', async () => {
+    await c.set('key', 'hello')
+    expect(adapter.set).toHaveBeenCalled()
+    expect(await c.get('key')).toBe('hello')
   })
 
-  // ── clear ───────────────────────────────────────────────────────────────
-  describe('clear', () => {
-    it('empties memory and IDB', async () => {
-      await cache.set('a', 1)
-      await cache.set('b', 2)
-      await cache.clear()
-      expect(await cache.get('a')).toBeNull()
-      expect(await cache.get('b')).toBeNull()
-    })
+  it('get falls back to adapter on memory miss', async () => {
+    const entry = { value: 'from-adapter', updatedAt: Date.now(), expiresAt: Date.now() + 60_000 }
+    adapter.store.set('key', entry)
+
+    const result = await c.get('key')
+    expect(result).toBe('from-adapter')
+    expect(adapter.get).toHaveBeenCalledWith('key')
+  })
+
+  it('get caches adapter result in memory on second call', async () => {
+    const entry = { value: 'cached', updatedAt: Date.now(), expiresAt: Date.now() + 60_000 }
+    adapter.store.set('key', entry)
+    await c.get('key')
+    vi.mocked(adapter.get).mockClear()
+    await c.get('key')
+    expect(adapter.get).not.toHaveBeenCalled()
+  })
+
+  it('get returns null and deletes expired adapter entry', async () => {
+    const entry = { value: 'old', updatedAt: 1000, expiresAt: 1000 }
+    adapter.store.set('key', entry)
+    expect(await c.get('key')).toBeNull()
+    expect(adapter.delete).toHaveBeenCalledWith('key')
+  })
+
+  it('delete removes from memory and adapter', async () => {
+    await c.set('key', 'val')
+    await c.delete('key')
+    expect(adapter.delete).toHaveBeenCalledWith('key')
+    expect(await c.get('key')).toBeNull()
+  })
+
+  it('clear empties memory and adapter', async () => {
+    await c.set('a', 1)
+    await c.set('b', 2)
+    await c.clear()
+    expect(adapter.clear).toHaveBeenCalled()
+    expect(await c.get('a')).toBeNull()
   })
 })

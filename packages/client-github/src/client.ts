@@ -1,5 +1,7 @@
 import { createGithubApi, type GithubApi } from './github/github-api'
-import { cache as defaultCache, type Cache, type IngitDbClient, type IngitDbClientOptions, createCommittedChangesStore } from '@ingitdb/client'
+import { createCache, type Cache, type IngitDbClient, type IngitDbClientOptions } from '@ingitdb/client'
+import { idbCache } from './cache/idb-cache'
+import { createIdbCommittedChangesStore } from './changes/idb-committed-changes'
 import { loadDatabaseConfig } from './database/database-config'
 import { loadCollectionSchema, loadCollectionRecords } from './collection/collection'
 import { loadRecord } from './collection/record'
@@ -12,26 +14,6 @@ export type { IngitDbClientOptions }
 
 export interface IngitDbGithubClient extends IngitDbClient {
   githubApi: GithubApi
-}
-
-/** Creates a memory-only Cache with no persistence. */
-function createMemoryCache(): Cache {
-  const store = new Map<string, unknown>()
-  return {
-    async get<T = unknown>(key: string): Promise<T | null> {
-      return (store.get(key) as T | undefined) ?? null
-    },
-    async set<T = unknown>(key: string, value: T): Promise<T> {
-      store.set(key, value)
-      return value
-    },
-    async delete(key: string): Promise<void> {
-      store.delete(key)
-    },
-    async clear(): Promise<void> {
-      store.clear()
-    }
-  }
 }
 
 /**
@@ -54,8 +36,8 @@ export function createIngitDbClient(options?: IngitDbClientOptions): IngitDbGith
   const cacheOption = options?.cache
   const cacheInstance: Cache =
     cacheOption === false
-      ? createMemoryCache()  // memory-only, no persistence
-      : defaultCache          // IDB-backed via the default cache singleton
+      ? createCache()        // memory-only, no persistence
+      : createCache(idbCache) // IDB-backed (default for browser)
 
   const deps = { githubApi, cache: cacheInstance }
 
@@ -88,6 +70,6 @@ export function createIngitDbClient(options?: IngitDbClientOptions): IngitDbGith
       createPendingChangesStore(githubApi, cacheInstance),
 
     createCommittedChangesStore: () =>
-      createCommittedChangesStore()
+      createIdbCommittedChangesStore()
   }
 }

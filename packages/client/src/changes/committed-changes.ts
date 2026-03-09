@@ -1,68 +1,42 @@
-import { openDB, type IDBPDatabase } from 'idb'
 import type { PendingChange, CommittedChangesStore } from '../types'
 
-const DB_NAME = 'ingitdb-committed'
-const STORE_NAME = 'changes'
-
 /**
- * Factory that creates a CommittedChangesStore backed by IndexedDB.
- * Maintains an in-memory array for quick `isCommittedDeletion` checks.
+ * Creates an in-memory CommittedChangesStore.
+ * Suitable for Node.js and testing environments.
+ * For browser use with IndexedDB persistence, use createIdbCommittedChangesStore from @ingitdb/client-github.
  */
 export function createCommittedChangesStore(): CommittedChangesStore {
   let committedChanges: PendingChange[] = []
 
-  const dbPromise: Promise<IDBPDatabase> = openDB(DB_NAME, 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, {
-          keyPath: ['userId', 'repo', 'branch', 'collectionId', 'recordId']
-        })
-        store.createIndex('by-context', ['userId', 'repo', 'branch', 'collectionId'], { unique: false })
-        store.createIndex('by-repo-branch', ['userId', 'repo', 'branch'], { unique: false })
+  return {
+    async add(changes: PendingChange[]): Promise<void> {
+      for (const change of changes) {
+        if (!committedChanges.some(c =>
+          c.userId === change.userId && c.repo === change.repo &&
+          c.branch === change.branch && c.collectionId === change.collectionId &&
+          c.recordId === change.recordId
+        )) {
+          committedChanges = [...committedChanges, change]
+        }
       }
-    }
-  })
+    },
 
-  const add = async (changes: PendingChange[]): Promise<void> => {
-    const db = await dbPromise
-    for (const change of changes) {
-      const plain = JSON.parse(JSON.stringify(change)) as PendingChange
-      await db.put(STORE_NAME, plain)
-      // Update in-memory array immediately
-      if (!committedChanges.some(c =>
-        c.userId === plain.userId && c.repo === plain.repo &&
-        c.branch === plain.branch && c.collectionId === plain.collectionId &&
-        c.recordId === plain.recordId
-      )) {
-        committedChanges = [...committedChanges, plain]
-      }
+    async loadForCollection(userId, repo, branch, collectionId): Promise<PendingChange[]> {
+      return committedChanges.filter(c =>
+        c.userId === userId && c.repo === repo &&
+        c.branch === branch && c.collectionId === collectionId
+      )
+    },
+
+    async removeSettled(userId, repo, branch, collectionId, settledIds): Promise<void> {
+      committedChanges = committedChanges.filter(c =>
+        !(c.userId === userId && c.repo === repo && c.branch === branch &&
+          c.collectionId === collectionId && settledIds.includes(c.recordId))
+      )
+    },
+
+    isCommittedDeletion(recordId: string): boolean {
+      return committedChanges.some(c => c.recordId === recordId && c.changeType === 'delete')
     }
   }
-
-  const loadForCollection = async (
-    userId: string, repo: string, branch: string, collectionId: string
-  ): Promise<PendingChange[]> => {
-    const db = await dbPromise
-    const results = await db.getAllFromIndex(STORE_NAME, 'by-context', [userId, repo, branch, collectionId])
-    committedChanges = results as PendingChange[]
-    return committedChanges
-  }
-
-  const removeSettled = async (
-    userId: string, repo: string, branch: string, collectionId: string, settledIds: string[]
-  ): Promise<void> => {
-    const db = await dbPromise
-    for (const recordId of settledIds) {
-      await db.delete(STORE_NAME, [userId, repo, branch, collectionId, recordId])
-    }
-    committedChanges = committedChanges.filter(c =>
-      !(c.userId === userId && c.repo === repo && c.branch === branch &&
-        c.collectionId === collectionId && settledIds.includes(c.recordId))
-    )
-  }
-
-  const isCommittedDeletion = (recordId: string): boolean =>
-    committedChanges.some(c => c.recordId === recordId && c.changeType === 'delete')
-
-  return { add, loadForCollection, removeSettled, isCommittedDeletion }
 }

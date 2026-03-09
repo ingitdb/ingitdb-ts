@@ -14,9 +14,6 @@ importers:
 
   packages/client:
     dependencies:
-      idb:
-        specifier: ^8.0.2
-        version: 8.0.3
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -70,25 +67,25 @@ importers:
       '@ingitdb/client':
         specifier: workspace:*
         version: link:../client
+    devDependencies:
       '@ingr/codec':
         specifier: ^0.0.1
         version: 0.0.1
-      axios:
-        specifier: ^1.8.4
-        version: 1.13.6
-      idb:
-        specifier: ^8.0.2
-        version: 8.0.3
-    devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
       '@vitest/coverage-v8':
         specifier: ^3.0.8
         version: 3.2.4(vitest@3.2.4(@types/node@25.3.3)(happy-dom@20.8.3))
+      axios:
+        specifier: ^1.8.4
+        version: 1.13.6
       happy-dom:
         specifier: ^20.8.3
         version: 20.8.3
+      idb:
+        specifier: ^8.0.2
+        version: 8.0.3
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

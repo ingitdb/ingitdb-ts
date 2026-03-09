@@ -19,6 +19,7 @@ const getDb = (): Promise<IDBPDatabase> => {
   return dbPromise
 }
 
+/** IndexedDB-backed StorageAdapter. Use with createCache() from @ingitdb/client. */
 export const idbCache: StorageAdapter = {
   async get(key: string): Promise<unknown> {
     const db = await getDb()

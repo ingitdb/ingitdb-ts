@@ -5,8 +5,9 @@ const DB_NAME = 'ingitdb-committed'
 const STORE_NAME = 'changes'
 
 /**
- * Factory that creates a CommittedChangesStore backed by IndexedDB.
- * Maintains an in-memory array for quick `isCommittedDeletion` checks.
+ * Creates a CommittedChangesStore backed by IndexedDB.
+ * Maintains an in-memory array for quick isCommittedDeletion checks.
+ * For environments without IndexedDB (Node.js, tests), use createCommittedChangesStore from @ingitdb/client.
  */
 export function createIdbCommittedChangesStore(): CommittedChangesStore {
   let committedChanges: PendingChange[] = []
@@ -28,7 +29,6 @@ export function createIdbCommittedChangesStore(): CommittedChangesStore {
     for (const change of changes) {
       const plain = JSON.parse(JSON.stringify(change)) as PendingChange
       await db.put(STORE_NAME, plain)
-      // Update in-memory array immediately
       if (!committedChanges.some(c =>
         c.userId === plain.userId && c.repo === plain.repo &&
         c.branch === plain.branch && c.collectionId === plain.collectionId &&

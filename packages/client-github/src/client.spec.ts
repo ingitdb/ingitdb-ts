@@ -34,6 +34,7 @@ const mocks = vi.hoisted(() => {
 vi.mock('./github/github-api', () => ({ createGithubApi: mocks.createGithubApi }))
 vi.mock('@ingitdb/client', () => ({
   cache: mocks.fakeCache,
+  createCache: vi.fn(() => mocks.fakeCache),
   buildCacheKey: vi.fn((...parts: string[]) => parts.join(':')),
   createCommittedChangesStore: mocks.createCommittedChangesStore
 }))
@@ -47,6 +48,7 @@ vi.mock('./repo/repo', () => ({ loadRepoMeta: mocks.loadRepoMeta }))
 vi.mock('./repo/repo-settings', () => ({ loadRepoSettings: mocks.loadRepoSettings }))
 vi.mock('./collection/fk-views', () => ({ loadFKViews: mocks.loadFKViews }))
 vi.mock('./changes/pending-changes', () => ({ createPendingChangesStore: mocks.createPendingChangesStore }))
+vi.mock('./changes/idb-committed-changes', () => ({ createIdbCommittedChangesStore: mocks.createCommittedChangesStore }))
 
 const { createIngitDbClient } = await import('./client')
 

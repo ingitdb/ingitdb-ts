@@ -17,15 +17,14 @@ export type {
 export { createPendingChangesStore } from './changes/pending-changes'
 export { createIdbCommittedChangesStore } from './changes/idb-committed-changes'
 
-// ─── Cache ───────────────────────────────────────────────────────────────────
+// ─── Browser Storage ─────────────────────────────────────────────────────────
 export { idbCache } from './cache/idb-cache'
 
 // ─── Implementation Functions ─────────────────────────────────────────────────
 export {
   resolveCollectionPath,
   loadCollectionSchema,
-  loadCollectionRecords,
-  resolveDataPath
+  loadCollectionRecords
 } from './collection/collection'
 export type { CollectionDeps } from './collection/collection'
 

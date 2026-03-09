@@ -1,5 +1,3 @@
-import { idbCache } from './idb-cache'
-
 const DEFAULT_TTL = 60 * 60 * 1000
 
 interface CacheEntry<T = unknown> {
@@ -66,5 +64,5 @@ export function createCache(adapter?: StorageAdapter): Cache {
   }
 }
 
-/** Default cache — in-memory + IndexedDB backed. */
-export const cache: Cache = createCache(idbCache)
+/** Default cache — memory-only. For browser persistence use createCache(idbCache) from @ingitdb/client-github. */
+export const cache: Cache = createCache()
