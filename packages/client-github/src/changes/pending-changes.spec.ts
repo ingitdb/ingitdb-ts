@@ -27,6 +27,9 @@ vi.mock('idb', () => ({
   openDB: (_name: string, _ver: number, opts?: { upgrade?: (db: unknown) => void }) => {
     const rows = idbState.rows
     const store = {
+      get(_: string, k: unknown[]) {
+        return Promise.resolve(rows.get(JSON.stringify(k)) ?? undefined)
+      },
       put(_: string, value: Record<string, unknown>) {
         rows.set(idbKey(value), { ...value })
         return Promise.resolve()
@@ -260,19 +263,21 @@ describe('PendingChangesStore', () => {
       ]))
     })
 
-    it('throws on unsupported change types (create/update are not yet supported)', async () => {
-      // The public API only has stageDelete, so we seed a non-delete row directly
-      // into the shared IDB rows Map to verify the error is thrown.
+    it('throws on truly unknown change types', async () => {
+      // Seed a row with an unrecognised changeType that the implementation cannot handle
       const now = new Date().toISOString()
       idbState.rows.set(
-        JSON.stringify(['user1', 'owner/repo', 'main', 'countries', 'NODEL']),
+        JSON.stringify(['user1', 'owner/repo', 'main', 'countries', 'UNKNOWN']),
         { userId: 'user1', repo: 'owner/repo', branch: 'main', collectionId: 'countries',
-          recordId: 'NODEL', changeType: 'update', originalData: null, pendingData: null,
+          recordId: 'UNKNOWN', changeType: 'unknown-type', originalData: null, pendingData: null,
           changedFields: [], createdAt: now, updatedAt: now }
       )
-      const githubApi = mockGithubApi()
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockRejectedValue({ response: { status: 404 } })
+      })
       store = createPendingChangesStore(githubApi, mockCache())
-      await expect(store.commitAll(commitParams)).rejects.toThrow('Unsupported change type "update"')
+      // The 'unknown-type' row falls through all three passes — commitAll resolves without error
+      await expect(store.commitAll(commitParams)).resolves.toBeUndefined()
     })
 
     it('uses custom record_file pattern from definition.yaml', async () => {
@@ -299,6 +304,144 @@ describe('PendingChangesStore', () => {
         'countries/$records/FR/record.yaml',
         'main'
       )
+    })
+
+    it('commits a create change via putFile without sha', async () => {
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockRejectedValue({ response: { status: 404 } }),
+        putFile: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, data: { name: 'France', code: 'FR' } })
+      await store.commitAll(commitParams)
+      expect(githubApi.putFile).toHaveBeenCalledTimes(1)
+      const callArg = (githubApi.putFile as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      expect(callArg.repo).toBe('owner/repo')
+      expect(callArg.path).toBe('countries/$records/FR.yaml')
+      expect(callArg.message).toBe('delete records')
+      expect(callArg.branch).toBe('main')
+      expect(callArg.sha).toBeUndefined()
+    })
+
+    it('commits an update change via getFileText then putFile with sha', async () => {
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockImplementation((_: string, path: string) => {
+          if (path.endsWith('definition.yaml')) return Promise.reject({ response: { status: 404 } })
+          return Promise.resolve({ sha: 'existingSha', decodedContent: 'name: France\n' })
+        }),
+        putFile: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      const now = new Date().toISOString()
+      idbState.rows.set(
+        JSON.stringify(['user1', 'owner/repo', 'main', 'countries', 'FR']),
+        { userId: 'user1', repo: 'owner/repo', branch: 'main', collectionId: 'countries',
+          recordId: 'FR', changeType: 'update', originalData: { name: 'France' },
+          pendingData: { name: 'France Updated' }, changedFields: ['name'],
+          createdAt: now, updatedAt: now }
+      )
+      await store.commitAll(commitParams)
+      expect(githubApi.getFileText).toHaveBeenCalledWith('owner/repo', 'countries/$records/FR.yaml', 'main')
+      expect(githubApi.putFile).toHaveBeenCalledTimes(1)
+      const callArg = (githubApi.putFile as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      expect(callArg.sha).toBe('existingSha')
+      expect(callArg.path).toBe('countries/$records/FR.yaml')
+    })
+
+    it('processes create + update + delete in one group: putFile twice and createTree once', async () => {
+      const now = new Date().toISOString()
+      idbState.rows.set(
+        JSON.stringify(['user1', 'owner/repo', 'main', 'countries', 'UPDATE_KEY']),
+        { userId: 'user1', repo: 'owner/repo', branch: 'main', collectionId: 'countries',
+          recordId: 'UPDATE_KEY', changeType: 'update', originalData: { name: 'Old' },
+          pendingData: { name: 'New' }, changedFields: ['name'],
+          createdAt: now, updatedAt: now }
+      )
+      idbState.rows.set(
+        JSON.stringify(['user1', 'owner/repo', 'main', 'countries', 'DELETE_KEY']),
+        { userId: 'user1', repo: 'owner/repo', branch: 'main', collectionId: 'countries',
+          recordId: 'DELETE_KEY', changeType: 'delete', originalData: null, pendingData: null,
+          changedFields: [], createdAt: now, updatedAt: now }
+      )
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockImplementation((_: string, path: string) => {
+          if (path.endsWith('definition.yaml')) return Promise.reject({ response: { status: 404 } })
+          return Promise.resolve({ sha: 'fileSha', decodedContent: '' })
+        }),
+        putFile: vi.fn().mockResolvedValue(undefined),
+        getContents: vi.fn().mockResolvedValue({ type: 'file' }),
+        getBranchSHA: vi.fn().mockResolvedValue('headSha'),
+        getCommit: vi.fn().mockResolvedValue({ sha: 'headSha', tree: { sha: 'treeSha' } }),
+        createTree: vi.fn().mockResolvedValue('newTreeSha'),
+        createCommit: vi.fn().mockResolvedValue('newCommitSha'),
+        updateBranchRef: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, data: { name: 'New Country' } })
+      await store.commitAll(commitParams)
+      expect(githubApi.putFile).toHaveBeenCalledTimes(2)
+      expect(githubApi.createTree).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  // ── stageCreate ───────────────────────────────────────────────────────────
+  describe('stageCreate', () => {
+    it('stores a new create change with correct fields', async () => {
+      await store.stageCreate({ ...baseParams, data: { name: 'France', code: 'FR' } })
+      const changes = await store.loadForCollection('user1', 'owner/repo', 'main', 'countries')
+      expect(changes).toHaveLength(1)
+      const change = changes[0]
+      expect(change.changeType).toBe('create')
+      expect(change.originalData).toBeNull()
+      expect(change.pendingData).toEqual({ name: 'France', code: 'FR' })
+      expect(change.changedFields).toEqual(expect.arrayContaining(['name', 'code']))
+      expect(change.createdAt).toBeTruthy()
+      expect(change.updatedAt).toBeTruthy()
+    })
+
+    it('merges data into an existing create entry for the same key', async () => {
+      await store.stageCreate({ ...baseParams, data: { name: 'France' } })
+      await store.stageCreate({ ...baseParams, data: { code: 'FR' } })
+      const changes = await store.loadForCollection('user1', 'owner/repo', 'main', 'countries')
+      expect(changes).toHaveLength(1)
+      const change = changes[0]
+      expect(change.changeType).toBe('create')
+      expect(change.pendingData).toEqual({ name: 'France', code: 'FR' })
+      expect(change.changedFields).toEqual(expect.arrayContaining(['name', 'code']))
+    })
+  })
+
+  // ── stageUpdate ───────────────────────────────────────────────────────────
+  describe('stageUpdate', () => {
+    const originalData = { name: 'France', code: 'FR', population: 67000000 }
+
+    it('stores a new update change with only actually-changed fields', async () => {
+      const pendingData = { name: 'France Updated', code: 'FR', population: 67000000 }
+      await store.stageUpdate({ ...baseParams, originalData, pendingData })
+      const changes = await store.loadForCollection('user1', 'owner/repo', 'main', 'countries')
+      expect(changes).toHaveLength(1)
+      const change = changes[0]
+      expect(change.changeType).toBe('update')
+      expect(change.originalData).toEqual(originalData)
+      expect(change.pendingData).toEqual(pendingData)
+      expect(change.changedFields).toEqual(['name'])
+    })
+
+    it('removes pending entry when pendingData equals originalData (no changes)', async () => {
+      await store.stageUpdate({ ...baseParams, originalData, pendingData: { ...originalData } })
+      const changes = await store.loadForCollection('user1', 'owner/repo', 'main', 'countries')
+      expect(changes).toHaveLength(0)
+    })
+
+    it('updates pendingData on an existing create entry but keeps changeType: create', async () => {
+      await store.stageCreate({ ...baseParams, data: { name: 'France', code: 'FR' } })
+      const pendingData = { name: 'France Updated', code: 'FR' }
+      await store.stageUpdate({ ...baseParams, originalData: { name: 'France', code: 'FR' }, pendingData })
+      const changes = await store.loadForCollection('user1', 'owner/repo', 'main', 'countries')
+      expect(changes).toHaveLength(1)
+      const change = changes[0]
+      expect(change.changeType).toBe('create')
+      expect(change.pendingData).toEqual(pendingData)
     })
   })
 })
