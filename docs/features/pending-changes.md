@@ -147,6 +147,51 @@ await store.commitAll({ userId, repo, branch, message: 'User edits' })
 4. **Offline-First + Cloud:** Combine local IndexedDB with Firestore sync for best of both
 5. **Multi-Tab Consistency:** Keep pending changes in sync across browser tabs/windows
 
+**User Experience & Smart Onboarding:**
+
+When a user begins making changes locally (using in-memory or IndexedDB storage), they're immediately presented with a **subtle, non-intrusive panel** that introduces the cross-device editing capability:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 🔄 Edit from Any Device                                │
+│                                                          │
+│ Your draft changes are currently saved locally. Enable  │
+│ cross-device editing to access and continue your work   │
+│ from any device—phone, tablet, or computer.             │
+│                                                          │
+│ [Enable Cross-Device Editing]  [Learn More]  [Dismiss]  │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Onboarding Flow:**
+
+1. **Smart Detection:** Panel appears once user has 1+ pending changes (not on first load)
+2. **One-Click Activation:** "Enable Cross-Device Editing" button triggers Firebase sign-in
+3. **Seamless Sign-In:** User authenticates with Google, GitHub, or email (Firebase Auth)
+4. **Instant Sync:** After sign-in, pending changes automatically upload to Firestore
+5. **Real-Time Feedback:** Panel updates with status: "Synced 3 changes" or "Syncing..."
+6. **Multi-Device Magic:** Changes instantly appear on other logged-in devices
+
+**Benefits Highlighted to User:**
+- ✨ **Never lose work** — draft changes backed up to cloud
+- 📱 **One edit everywhere** — start on mobile, finish on desktop
+- 🔒 **Secure & private** — only you can see your pending changes
+- ⚡ **No server commit needed** — work at your own pace before publishing
+- 🚀 **Instant sync** — changes available across devices in real-time
+
+**Dismissible & Persistent:**
+- Users can dismiss the panel (remembered for that session)
+- Panel reappears on next login if still not enabled
+- "Learn More" link provides detailed documentation
+- Users can toggle Firestore sync in account/settings at any time
+
+**Post-Enablement Experience:**
+Once enabled, users see a minimal **status indicator** in the UI:
+- 🟢 Green dot = Changes synced with Firestore
+- 🟡 Yellow dot = Syncing in progress
+- 🔴 Red dot = Sync failed (with retry option)
+- Clicking indicator shows: "3 pending changes synced • Last updated 2 mins ago"
+
 **Configuration:**
 
 ```typescript
