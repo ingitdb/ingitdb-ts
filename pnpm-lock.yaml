@@ -7,7 +7,69 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      turbo:
+        specifier: ^2.8.14
+        version: 2.8.14
+
+  packages/client:
     dependencies:
+      idb:
+        specifier: ^8.0.2
+        version: 8.0.3
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.1
+    devDependencies:
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      '@vitest/coverage-v8':
+        specifier: ^3.0.8
+        version: 3.2.4(vitest@3.2.4(@types/node@25.3.3)(happy-dom@20.8.3))
+      happy-dom:
+        specifier: ^20.8.3
+        version: 20.8.3
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.3.3)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@25.3.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.3))
+      vitest:
+        specifier: ^3.0.8
+        version: 3.2.4(@types/node@25.3.3)(happy-dom@20.8.3)
+
+  packages/client-fs:
+    dependencies:
+      '@ingitdb/client':
+        specifier: workspace:*
+        version: link:../client
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: ^3.0.8
+        version: 3.2.4(vitest@3.2.4(@types/node@25.3.3)(happy-dom@20.8.3))
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.3.3)
+      vite-plugin-dts:
+        specifier: ^4.5.4
+        version: 4.5.4(@types/node@25.3.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.3))
+      vitest:
+        specifier: ^3.0.8
+        version: 3.2.4(@types/node@25.3.3)(happy-dom@20.8.3)
+
+  packages/client-github:
+    dependencies:
+      '@ingitdb/client':
+        specifier: workspace:*
+        version: link:../client
       '@ingr/codec':
         specifier: ^0.0.1
         version: 0.0.1
@@ -17,9 +79,6 @@ importers:
       idb:
         specifier: ^8.0.2
         version: 8.0.3
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.1.1
     devDependencies:
       '@types/js-yaml':
         specifier: ^4.0.9
@@ -1110,6 +1169,40 @@ packages:
   tinyspy@4.0.4:
     resolution: {integrity: sha512-azl+t0z7pw/z958Gy9svOTuzqIk6xq+NSheJzn5MMWtWTFywIacg2wUlzKFGtt3cthx0r2SxMK0yzJOR0IES7Q==}
     engines: {node: '>=14.0.0'}
+
+  turbo-darwin-64@2.8.14:
+    resolution: {integrity: sha512-9sFi7n2lLfEsGWi5OEoA/eTtQU2BPKtzSYKqufMtDeRmqMT9vKjbv9gJCRkllSVE9BOXA0qXC3diyX8V8rKIKw==}
+    cpu: [x64]
+    os: [darwin]
+
+  turbo-darwin-arm64@2.8.14:
+    resolution: {integrity: sha512-aS4yJuy6A1PCLws+PJpZP0qCURG8Y5iVx13z/WAbKyeDTY6W6PiGgcEllSaeLGxyn++382ztN/EZH85n2zZ6VQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  turbo-linux-64@2.8.14:
+    resolution: {integrity: sha512-XC6wPUDJkakjhNLaS0NrHDMiujRVjH+naEAwvKLArgqRaFkNxjmyNDRM4eu3soMMFmjym6NTxYaF74rvET+Orw==}
+    cpu: [x64]
+    os: [linux]
+
+  turbo-linux-arm64@2.8.14:
+    resolution: {integrity: sha512-ChfE7isyVNjZrVSPDwcfqcHLG/FuIBbOFxnt1FM8vSuBGzHAs8AlTdwFNIxlEMJfZ8Ad9mdMxdmsCUPIWiQ6cg==}
+    cpu: [arm64]
+    os: [linux]
+
+  turbo-windows-64@2.8.14:
+    resolution: {integrity: sha512-FTbIeQL1ycLFW2t9uQNMy+bRSzi3Xhwun/e7ZhFBdM+U0VZxxrtfYEBM9CHOejlfqomk6Jh7aRz0sJoqYn39Hg==}
+    cpu: [x64]
+    os: [win32]
+
+  turbo-windows-arm64@2.8.14:
+    resolution: {integrity: sha512-KgZX12cTyhY030qS7ieT8zRkhZZE2VWJasDFVUSVVn17nR7IShpv68/7j5UqJNeRLIGF1XPK0phsP5V5yw3how==}
+    cpu: [arm64]
+    os: [win32]
+
+  turbo@2.8.14:
+    resolution: {integrity: sha512-UCTxeMNYT1cKaHiIFdLCQ7ulI+jw5i5uOnJOrRXsgUD7G3+OjlUjwVd7JfeVt2McWSVGjYA3EVW/v1FSsJ5DtA==}
+    hasBin: true
 
   typescript@5.8.2:
     resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
@@ -2237,6 +2330,33 @@ snapshots:
   tinyrainbow@2.0.0: {}
 
   tinyspy@4.0.4: {}
+
+  turbo-darwin-64@2.8.14:
+    optional: true
+
+  turbo-darwin-arm64@2.8.14:
+    optional: true
+
+  turbo-linux-64@2.8.14:
+    optional: true
+
+  turbo-linux-arm64@2.8.14:
+    optional: true
+
+  turbo-windows-64@2.8.14:
+    optional: true
+
+  turbo-windows-arm64@2.8.14:
+    optional: true
+
+  turbo@2.8.14:
+    optionalDependencies:
+      turbo-darwin-64: 2.8.14
+      turbo-darwin-arm64: 2.8.14
+      turbo-linux-64: 2.8.14
+      turbo-linux-arm64: 2.8.14
+      turbo-windows-64: 2.8.14
+      turbo-windows-arm64: 2.8.14
 
   typescript@5.8.2: {}
 

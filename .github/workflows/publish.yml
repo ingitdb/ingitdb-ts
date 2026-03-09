@@ -2,25 +2,25 @@ name: CI & Publish
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
   release:
-    types: [published]
+    types: [ published ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
@@ -28,19 +28,39 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests with coverage
-        run: pnpm test:run --coverage
+        run: |
+          pnpm --filter @ingitdb/client run test:run -- --coverage
+          pnpm --filter @ingitdb/client-github run test:run -- --coverage
 
-      - name: Upload coverage to Coveralls
+      - name: Upload coverage (@ingitdb/client) to Coveralls
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: coverage/lcov.info
+          file: packages/client/coverage/lcov.info
+          flag-name: client
+          parallel: true
+
+      - name: Upload coverage (@ingitdb/client-github) to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: packages/client-github/coverage/lcov.info
+          flag-name: client-github
+          parallel: true
+
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
 
       - name: Build
         run: pnpm build
 
       - name: Publish to NPM
         if: github.event_name == 'release'
-        run: npm publish --provenance --access public
+        # --no-git-checks was removed: in a release workflow triggered by a git tag,
+        # the working tree should always be clean. Removing the flag restores this safety check.
+        run: pnpm -r publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

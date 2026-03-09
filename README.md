@@ -1,37 +1,83 @@
-# @ingitdb/client
+# ingitdb-ts
 
-[![npm version](https://img.shields.io/npm/v/@ingitdb/client)](https://www.npmjs.com/package/@ingitdb/client)
-[![Coverage Status](https://coveralls.io/repos/github/ingitdb/ingitdb-client-ts/badge.svg?branch=main)](https://coveralls.io/github/ingitdb/ingitdb-client-ts?branch=main)
-[![CI](https://github.com/ingitdb/ingitdb-client-ts/actions/workflows/publish.yml/badge.svg)](https://github.com/ingitdb/ingitdb-client-ts/actions/workflows/publish.yml)
+TypeScript client library for [inGitDB](https://ingitdb.com) — use git repositories as a structured database.
 
-TypeScript client library for [inGitDB](https://ingitdb.com) — use GitHub repositories as a structured database.
+This is a **pnpm workspace monorepo** containing three packages:
 
-## Features
+| Package | npm | Description |
+|---------|-----|-------------|
+| [`@ingitdb/client`](packages/client/) | [![npm](https://img.shields.io/npm/v/@ingitdb/client)](https://www.npmjs.com/package/@ingitdb/client) | Core interface, shared types, and utilities |
+| [`@ingitdb/client-github`](packages/client-github/) | [![npm](https://img.shields.io/npm/v/@ingitdb/client-github)](https://www.npmjs.com/package/@ingitdb/client-github) | GitHub REST API implementation |
+| [`@ingitdb/client-fs`](packages/client-fs/) | [![npm](https://img.shields.io/npm/v/@ingitdb/client-fs)](https://www.npmjs.com/package/@ingitdb/client-fs) | Local filesystem implementation *(coming soon)* |
 
-- 📦 Zero framework dependencies (no Vue, React, Angular, or RxJS)
-- 🔑 Optional GitHub token for authenticated access
-- 🗄️ IndexedDB + in-memory caching
-- 📐 Full schema support (columns, FK views, materialized views)
-- 🔄 Pending and committed changes tracking
-- 📝 Dual ESM + CJS build with full TypeScript declarations
-
-## Test Coverage
-
-We target and maintain **100% test coverage** (statements, branches, functions, lines).
-
-## Installation
+## Quick start
 
 ```bash
-npm install @ingitdb/client
+npm install @ingitdb/client-github
 ```
 
-## Usage
-
 ```ts
-import { createIngitDbClient } from '@ingitdb/client'
+import { createIngitDbClient } from '@ingitdb/client-github'
 
 const client = createIngitDbClient({ token: 'ghp_...' })
-
 const schema = await client.loadCollectionSchema('owner/repo', 'main', 'countries')
 const records = await client.loadCollectionRecords('owner/repo', 'main', 'countries', schema.schema)
 ```
+
+## Development
+
+```bash
+pnpm install   # install all workspace dependencies
+```
+
+### Build
+
+```bash
+# All packages (dependency order: @ingitdb/client first)
+pnpm build
+
+# Single package
+pnpm --filter @ingitdb/client build
+pnpm --filter @ingitdb/client-github build
+pnpm --filter @ingitdb/client-fs build
+```
+
+### Lint
+
+```bash
+# All packages
+pnpm lint
+
+# Single package
+pnpm --filter @ingitdb/client lint
+pnpm --filter @ingitdb/client-github lint
+pnpm --filter @ingitdb/client-fs lint
+```
+
+> **Note:** lint in dependent packages requires `@ingitdb/client` to be built first.
+> Running `pnpm lint` via Turborepo handles this automatically.
+> For a single package, build the dependency manually if needed: `pnpm --filter @ingitdb/client build`
+
+### Tests
+
+```bash
+# All packages (watch mode)
+pnpm test
+
+# All packages (single run)
+pnpm test:run
+
+# Single package (watch mode)
+pnpm --filter @ingitdb/client test
+pnpm --filter @ingitdb/client-github test
+pnpm --filter @ingitdb/client-fs test
+
+# Single package (single run)
+pnpm --filter @ingitdb/client test:run
+pnpm --filter @ingitdb/client-github test:run
+pnpm --filter @ingitdb/client-fs test:run
+```
+
+> **Note:** tests in dependent packages require `@ingitdb/client` to be built first.
+> Running `pnpm test:run` via Turborepo handles this automatically.
+> For a single package, build the dependency manually if needed: `pnpm --filter @ingitdb/client build`
