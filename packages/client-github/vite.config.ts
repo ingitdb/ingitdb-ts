@@ -5,9 +5,10 @@ import { resolve } from 'path'
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'IngitDbClientGithub',
-      fileName: 'index',
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        testing: resolve(__dirname, 'src/testing.ts'),
+      },
       formats: ['es', 'cjs']
     },
     rollupOptions: {
