@@ -62,6 +62,14 @@ export interface PendingChangesStore {
   stageDelete(params: {
     userId: string; repo: string; branch: string; collectionId: string; recordId: string
   }): Promise<void>
+  stageCreate(params: {
+    userId: string; repo: string; branch: string; collectionId: string
+    recordId: string; data: Record<string, unknown>
+  }): Promise<void>
+  stageUpdate(params: {
+    userId: string; repo: string; branch: string; collectionId: string
+    recordId: string; originalData: Record<string, unknown>; pendingData: Record<string, unknown>
+  }): Promise<void>
   unstage(params: {
     userId: string; repo: string; branch: string; collectionId: string; recordId: string
   }): Promise<void>
