@@ -10,11 +10,6 @@ Welcome to the inGitDB documentation. This directory contains comprehensive guid
 - Details on how `@ingitdb/client` was decoupled from the Vue-based `ingitdb-ws`
 - Package structure, design principles, and migration roadmap
 
-### [Pending Changes Management](./pending-changes.md)
-- **File:** `pending-changes.md`
-- How user edits are stored locally before being committed to Git
-- Storage options: in-memory, IndexedDB (implemented), and PouchDB (planned)
-- Change lifecycle, configuration, and future enhancements
 
 ### [Features](./features/README.md)
 - Comprehensive feature documentation and integration guides
@@ -24,7 +19,7 @@ Welcome to the inGitDB documentation. This directory contains comprehensive guid
 ## Quick Navigation
 
 - **New to inGitDB?** Start with the [Architecture Guide](./decoupling-from-ws.md) to understand the project structure
-- **How do pending changes work?** See the [Pending Changes Management](./pending-changes.md) guide
+- **How do pending changes work?** See the [Pending Changes Management](./features/pending-changes.md) guide
 - **Interested in offline-first?** See the [PouchDB Integration](./features/pouchdb-integration.md) documentation
 - **Contributing?** Check individual feature docs for implementation details and design decisions
 

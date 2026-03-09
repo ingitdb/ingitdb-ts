@@ -32,7 +32,7 @@ const changes: Map<string, PendingChange> = new Map()
 Changes are persistently stored in the browser's IndexedDB database, surviving page refreshes and browser restarts.
 
 **Implementation:**
-- **Location:** [`packages/client-github/src/changes/pending-changes.ts`](../packages/client-github/src/changes/pending-changes.ts)
+- **Location:** [`packages/client-github/src/changes/pending-changes.ts`](../../packages/client-github/src/changes/pending-changes.ts)
 - **Database:** Named `ingitdb-pending`
 - **Schema:** Composite key `[userId, repo, branch, collectionId, recordId]`
 - **Indexes:**
@@ -79,7 +79,7 @@ Future integration with PouchDB/CouchDB for richer synchronization semantics.
 - Continuous background sync with configurable intervals
 
 **Related Documentation:**
-- See [`features/pouchdb-integration.md`](./features/pouchdb-integration.md) for full details on PouchDB integration roadmap
+- See [`pouchdb-integration.md`](./pouchdb-integration.md) for full details on PouchDB integration roadmap
 
 ---
 
@@ -232,6 +232,6 @@ const customStore: PendingChangesStore = {
 
 ## See Also
 
-- [`features/pouchdb-integration.md`](./features/pouchdb-integration.md) — Planned PouchDB integration
-- [Implementation: `packages/client-github/src/changes/pending-changes.ts`](../packages/client-github/src/changes/pending-changes.ts)
-- [Tests: `packages/client-github/src/changes/pending-changes.spec.ts`](../packages/client-github/src/changes/pending-changes.spec.ts)
+- [`pouchdb-integration.md`](./pouchdb-integration.md) — Planned PouchDB integration
+- [Implementation: `packages/client-github/src/changes/pending-changes.ts`](../../packages/client-github/src/changes/pending-changes.ts)
+- [Tests: `packages/client-github/src/changes/pending-changes.spec.ts`](../../packages/client-github/src/changes/pending-changes.spec.ts)
