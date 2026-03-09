@@ -22,6 +22,7 @@ This directory documents key features and integrations for inGitDB.
 | Feature | Status | Documentation |
 |---------|--------|---|
 | Pending Changes (In-Memory & IndexedDB) | Implemented | [pending-changes.md](./pending-changes.md) |
+| Pending Changes (Firestore Cloud Storage) | Planned | [pending-changes.md](./pending-changes.md) |
 | Pending Changes (PouchDB) | Planned | [pending-changes.md](./pending-changes.md) |
 | PouchDB Integration | Planned | [pouchdb-integration.md](./pouchdb-integration.md) |
 

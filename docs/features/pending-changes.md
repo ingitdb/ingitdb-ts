@@ -83,6 +83,89 @@ Future integration with PouchDB/CouchDB for richer synchronization semantics.
 
 ---
 
+### 4. Firestore Cloud Storage (Planned)
+
+Cloud-based pending changes storage using Google Cloud Firestore, enabling continuity across multiple devices and seamless synchronization.
+
+**Implementation:**
+- **Library:** `@ingitdb/firestore` (under development)
+- **Backend:** Google Cloud Firestore
+- **Collection Structure:** `users/{userId}/pending-changes/{changeId}`
+- **Real-time Sync:** Firestore listeners for live updates across devices
+
+**Characteristics:**
+- **Multi-Device Continuity:** Access and edit pending changes on any authenticated device
+- **Cloud Persistence:** Offsite backup of draft changes; resilient to device loss
+- **Real-Time Synchronization:** Live updates when changes are made on other devices
+- **Network Efficiency:** Only syncs changed fields using Firestore's delta updates
+- **Offline Support:** Local caching with automatic sync when connectivity restored
+- **Authentication:** Integrated with Firebase Authentication
+- **Scalability:** Serverless architecture handles any number of users/devices
+- **Cost:** Pay-per-read/write model; minimal cost for inactive users
+
+**Planned Features:**
+- Real-time presence indicators (see who else is editing)
+- Automatic conflict resolution with last-write-wins or custom merging
+- Change history and audit logs in Firestore
+- Cross-device notifications when changes are committed
+- Selective sync (choose which device syncs which changes)
+- Encryption at rest (Firebase Security Rules + client-side encryption option)
+
+**Key Methods:**
+
+```typescript
+import { createFirestorePendingChangesStore } from '@ingitdb/firestore'
+import { initializeApp } from 'firebase/app'
+import { getFirestore } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth'
+
+const firebaseApp = initializeApp({ /* config */ })
+const firestore = getFirestore(firebaseApp)
+const auth = getAuth(firebaseApp)
+
+const store = createFirestorePendingChangesStore(firestore, auth)
+
+// Load pending changes synced across devices
+const changes = await store.loadForCollection(userId, repo, branch, collectionId)
+
+// Stage a change (automatically synced to cloud)
+await store.stageDelete({ userId, repo, branch, collectionId, recordId })
+
+// Listen for real-time changes from other devices
+store.onChangesUpdated((changes) => {
+  console.log('Changes updated from another device:', changes)
+})
+
+// Commit changes (clears pending state across all devices)
+await store.commitAll({ userId, repo, branch, message: 'User edits' })
+```
+
+**Use Cases:**
+1. **Mobile + Desktop Workflows:** Start editing on phone, continue on laptop seamlessly
+2. **Team Collaboration:** Share pending changes across team members' devices (with permissions)
+3. **Disaster Recovery:** Never lose draft edits—they're automatically backed up to cloud
+4. **Offline-First + Cloud:** Combine local IndexedDB with Firestore sync for best of both
+5. **Multi-Tab Consistency:** Keep pending changes in sync across browser tabs/windows
+
+**Configuration:**
+
+```typescript
+// Simple setup with Firebase config
+const store = createFirestorePendingChangesStore(firestore, auth, {
+  syncInterval: 5000,           // Sync every 5 seconds (optional)
+  encryptChanges: true,         // Client-side encryption (optional)
+  conflictResolution: 'last-write-wins', // or 'manual' for UI resolution
+})
+```
+
+**Security Considerations:**
+- Firestore Security Rules restrict access to the authenticated user's own pending changes
+- Optional client-side encryption layer for sensitive data
+- Changes are cleared from cloud storage after successful Git commit
+- Audit trail available for compliance requirements
+
+---
+
 ## Change Lifecycle
 
 ### 1. Staging Changes
@@ -166,6 +249,7 @@ interface PendingChange {
 | In-Memory | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IndexedDB | ✓ | ✓ | ✓ | ✓ | ✓ (11.3+) |
 | PouchDB | ✓ | ✓ | ✓ | ✓ | ✓ (planned) |
+| Firestore | ✓ | ✓ | ✓ | ✓ | ✓ (Firebase SDK support) |
 
 ---
 
@@ -221,17 +305,20 @@ const customStore: PendingChangesStore = {
 
 ## Future Enhancements
 
-1. **Partial Commits:** Commit a subset of pending changes, not all at once
-2. **Draft Management:** Save, load, and manage multiple draft sets
-3. **Conflict Detection:** Detect if a record was edited server-side while pending
-4. **Encryption:** Encrypt pending changes in IndexedDB for sensitive data
-5. **Cloud Backup:** Optional server-side pending changes backup (encrypted)
-6. **PouchDB Integration:** Full offline-first sync with conflict resolution
+1. **Partial Commits:** Commit a subset of pending changes, not all at once (all backends)
+2. **Draft Management:** Save, load, and manage multiple named draft sets (Firestore)
+3. **Conflict Detection:** Detect if a record was edited server-side while pending (Firestore planned)
+4. **Encryption:** Client-side encryption for sensitive pending changes (Firestore planned)
+5. **Team Collaboration:** Share pending changes with team members (Firestore planned)
+6. **PouchDB Integration:** Full offline-first sync with conflict resolution (planned)
+7. **Analytics:** Track pending change patterns, commit frequency, and size metrics (Firestore planned)
+8. **Mobile Push Notifications:** Notify when changes are synced or conflicts detected (Firestore planned)
 
 ---
 
 ## See Also
 
 - [`pouchdb-integration.md`](./pouchdb-integration.md) — Planned PouchDB integration
-- [Implementation: `packages/client-github/src/changes/pending-changes.ts`](../../packages/client-github/src/changes/pending-changes.ts)
+- `@ingitdb/firestore` — Cloud-based pending changes (planned library)
+- [Implementation: `packages/client-github/src/changes/pending-changes.ts`](../../packages/client-github/src/changes/pending-changes.ts) — IndexedDB implementation
 - [Tests: `packages/client-github/src/changes/pending-changes.spec.ts`](../../packages/client-github/src/changes/pending-changes.spec.ts)
