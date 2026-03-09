@@ -1,6 +1,8 @@
 # IDEs
 .idea/
 
+.turbo/
+
 # Logs
 logs
 *.log
