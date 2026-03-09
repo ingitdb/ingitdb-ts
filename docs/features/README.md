@@ -10,6 +10,12 @@ This directory documents key features and integrations for inGitDB.
 - Change lifecycle, data structures, and configuration
 - Browser compatibility and security considerations
 
+### [Firestore Cloud Storage](./firestore-storage.md)
+- Cloud-based pending changes storage for multi-device continuity
+- Real-time synchronization across devices with Firebase Authentication
+- Complete API reference, configuration, and security details
+- Use cases, pricing, and troubleshooting guide
+
 ### [PouchDB Integration](./pouchdb-integration.md)
 - Offline-first architecture using PouchDB/CouchDB
 - Local data caching and synchronization strategies
@@ -22,7 +28,7 @@ This directory documents key features and integrations for inGitDB.
 | Feature | Status | Documentation |
 |---------|--------|---|
 | Pending Changes (In-Memory & IndexedDB) | Implemented | [pending-changes.md](./pending-changes.md) |
-| Pending Changes (Firestore Cloud Storage) | Planned | [pending-changes.md](./pending-changes.md) |
+| Pending Changes (Firestore Cloud Storage) | Planned | [firestore-storage.md](./firestore-storage.md) |
 | Pending Changes (PouchDB) | Planned | [pending-changes.md](./pending-changes.md) |
 | PouchDB Integration | Planned | [pouchdb-integration.md](./pouchdb-integration.md) |
 

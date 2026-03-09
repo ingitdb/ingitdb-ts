@@ -85,129 +85,29 @@ Future integration with PouchDB/CouchDB for richer synchronization semantics.
 
 ### 4. Firestore Cloud Storage (Planned)
 
-Cloud-based pending changes storage using Google Cloud Firestore, enabling continuity across multiple devices and seamless synchronization.
+Cloud-based pending changes storage using Google Cloud Firestore (`@ingitdb/firestore` library), enabling continuity across multiple devices and seamless synchronization.
 
-**Implementation:**
-- **Library:** `@ingitdb/firestore` (under development)
-- **Backend:** Google Cloud Firestore
-- **Collection Structure:** `users/{userId}/pending-changes/{changeId}`
-- **Real-time Sync:** Firestore listeners for live updates across devices
-
-**Characteristics:**
+**Key Benefits:**
 - **Multi-Device Continuity:** Access and edit pending changes on any authenticated device
 - **Cloud Persistence:** Offsite backup of draft changes; resilient to device loss
 - **Real-Time Synchronization:** Live updates when changes are made on other devices
-- **Network Efficiency:** Only syncs changed fields using Firestore's delta updates
-- **Offline Support:** Local caching with automatic sync when connectivity restored
-- **Authentication:** Integrated with Firebase Authentication
-- **Scalability:** Serverless architecture handles any number of users/devices
-- **Cost:** Pay-per-read/write model; minimal cost for inactive users
+- **Smart Onboarding:** Subtle panel prompts users to enable cross-device editing after first edit
+- **Firebase Integration:** Seamless sign-in with Google, GitHub, or email
 
-**Planned Features:**
-- Real-time presence indicators (see who else is editing)
-- Automatic conflict resolution with last-write-wins or custom merging
-- Change history and audit logs in Firestore
-- Cross-device notifications when changes are committed
-- Selective sync (choose which device syncs which changes)
-- Encryption at rest (Firebase Security Rules + client-side encryption option)
+**Smart Onboarding Panel:**
 
-**Key Methods:**
+| Element | Details |
+|---------|---------|
+| **Title** | 🔄 Edit from Any Device |
+| **Message** | Your draft changes are currently saved locally. Enable cross-device editing to access and continue your work from any device—phone, tablet, or computer. |
+| **Primary Action** | Enable Cross-Device Editing (triggers Firebase sign-in) |
+| **Secondary Actions** | Learn More (documentation), Dismiss (hide for now) |
 
-```typescript
-import { createFirestorePendingChangesStore } from '@ingitdb/firestore'
-import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+**Post-Enablement:**
+Real-time status indicator (🟢 synced, 🟡 syncing, 🔴 failed) shows sync state with hover details: "3 pending changes synced • Last updated 2 mins ago"
 
-const firebaseApp = initializeApp({ /* config */ })
-const firestore = getFirestore(firebaseApp)
-const auth = getAuth(firebaseApp)
-
-const store = createFirestorePendingChangesStore(firestore, auth)
-
-// Load pending changes synced across devices
-const changes = await store.loadForCollection(userId, repo, branch, collectionId)
-
-// Stage a change (automatically synced to cloud)
-await store.stageDelete({ userId, repo, branch, collectionId, recordId })
-
-// Listen for real-time changes from other devices
-store.onChangesUpdated((changes) => {
-  console.log('Changes updated from another device:', changes)
-})
-
-// Commit changes (clears pending state across all devices)
-await store.commitAll({ userId, repo, branch, message: 'User edits' })
-```
-
-**Use Cases:**
-1. **Mobile + Desktop Workflows:** Start editing on phone, continue on laptop seamlessly
-2. **Team Collaboration:** Share pending changes across team members' devices (with permissions)
-3. **Disaster Recovery:** Never lose draft edits—they're automatically backed up to cloud
-4. **Offline-First + Cloud:** Combine local IndexedDB with Firestore sync for best of both
-5. **Multi-Tab Consistency:** Keep pending changes in sync across browser tabs/windows
-
-**User Experience & Smart Onboarding:**
-
-When a user begins making changes locally (using in-memory or IndexedDB storage), they're immediately presented with a **subtle, non-intrusive panel** that introduces the cross-device editing capability:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ 🔄 Edit from Any Device                                │
-│                                                          │
-│ Your draft changes are currently saved locally. Enable  │
-│ cross-device editing to access and continue your work   │
-│ from any device—phone, tablet, or computer.             │
-│                                                          │
-│ [Enable Cross-Device Editing]  [Learn More]  [Dismiss]  │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Onboarding Flow:**
-
-1. **Smart Detection:** Panel appears once user has 1+ pending changes (not on first load)
-2. **One-Click Activation:** "Enable Cross-Device Editing" button triggers Firebase sign-in
-3. **Seamless Sign-In:** User authenticates with Google, GitHub, or email (Firebase Auth)
-4. **Instant Sync:** After sign-in, pending changes automatically upload to Firestore
-5. **Real-Time Feedback:** Panel updates with status: "Synced 3 changes" or "Syncing..."
-6. **Multi-Device Magic:** Changes instantly appear on other logged-in devices
-
-**Benefits Highlighted to User:**
-- ✨ **Never lose work** — draft changes backed up to cloud
-- 📱 **One edit everywhere** — start on mobile, finish on desktop
-- 🔒 **Secure & private** — only you can see your pending changes
-- ⚡ **No server commit needed** — work at your own pace before publishing
-- 🚀 **Instant sync** — changes available across devices in real-time
-
-**Dismissible & Persistent:**
-- Users can dismiss the panel (remembered for that session)
-- Panel reappears on next login if still not enabled
-- "Learn More" link provides detailed documentation
-- Users can toggle Firestore sync in account/settings at any time
-
-**Post-Enablement Experience:**
-Once enabled, users see a minimal **status indicator** in the UI:
-- 🟢 Green dot = Changes synced with Firestore
-- 🟡 Yellow dot = Syncing in progress
-- 🔴 Red dot = Sync failed (with retry option)
-- Clicking indicator shows: "3 pending changes synced • Last updated 2 mins ago"
-
-**Configuration:**
-
-```typescript
-// Simple setup with Firebase config
-const store = createFirestorePendingChangesStore(firestore, auth, {
-  syncInterval: 5000,           // Sync every 5 seconds (optional)
-  encryptChanges: true,         // Client-side encryption (optional)
-  conflictResolution: 'last-write-wins', // or 'manual' for UI resolution
-})
-```
-
-**Security Considerations:**
-- Firestore Security Rules restrict access to the authenticated user's own pending changes
-- Optional client-side encryption layer for sensitive data
-- Changes are cleared from cloud storage after successful Git commit
-- Audit trail available for compliance requirements
+**See detailed documentation:**
+→ [`firestore-storage.md`](./firestore-storage.md) — Complete Firestore integration guide with architecture, API reference, configuration, and security details
 
 ---
 
