@@ -35,8 +35,8 @@ jobs:
 
       - name: Publish to NPM
         if: github.event_name == 'release'
-        # --no-git-checks was removed: in a release workflow triggered by a git tag,
-        # the working tree should always be clean. Removing the flag restores this safety check.
-        run: pnpm -r publish --provenance --access public
+        # Using --no-git-checks because the workflow runs in a detached HEAD state
+        # in the release context. The working tree is clean since it's a fresh checkout.
+        run: pnpm -r publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
