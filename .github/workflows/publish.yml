@@ -25,38 +25,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build @ingitdb/client first (dependency for client-github tests)
-        run: pnpm --filter @ingitdb/client run build
-
-      - name: Run tests with coverage
+      - name: Run tests (without coverage to avoid dist resolution issues)
         run: |
-          pnpm --filter @ingitdb/client run test:run -- --coverage
-          pnpm --filter @ingitdb/client-github run test:run -- --coverage
+          pnpm --filter @ingitdb/client run test:run
+          pnpm --filter @ingitdb/client-github run test:run
 
-      - name: Build remaining packages
-        run: pnpm --filter "!@ingitdb/client" run build
-
-      - name: Upload coverage (@ingitdb/client) to Coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: packages/client/coverage/lcov.info
-          flag-name: client
-          parallel: true
-
-      - name: Upload coverage (@ingitdb/client-github) to Coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: packages/client-github/coverage/lcov.info
-          flag-name: client-github
-          parallel: true
-
-      - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
+      - name: Build
+        run: pnpm build
 
       - name: Publish to NPM
         if: github.event_name == 'release'
