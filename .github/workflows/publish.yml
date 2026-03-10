@@ -25,13 +25,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build @ingitdb/client first (dependency for client-github tests)
+        run: pnpm --filter @ingitdb/client run build
+
       - name: Run tests with coverage
         run: |
           pnpm --filter @ingitdb/client run test:run -- --coverage
           pnpm --filter @ingitdb/client-github run test:run -- --coverage
 
-      - name: Build
-        run: pnpm build
+      - name: Build remaining packages
+        run: pnpm --filter "!@ingitdb/client" run build
 
       - name: Upload coverage (@ingitdb/client) to Coveralls
         uses: coverallsapp/github-action@v2
