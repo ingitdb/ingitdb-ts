@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm build
+
       - name: Run tests with coverage
         run: |
           pnpm --filter @ingitdb/client run test:run -- --coverage
@@ -51,9 +54,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-
-      - name: Build
-        run: pnpm build
 
       - name: Publish to NPM
         if: github.event_name == 'release'
