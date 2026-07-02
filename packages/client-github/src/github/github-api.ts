@@ -27,6 +27,12 @@ const parseRepo = (repo: string): { owner: string; name: string } => {
   return { owner, name }
 }
 
+/** Decodes a base64 string (as returned by the GitHub Contents API, which
+ * line-wraps at 60 chars) back into a UTF-8 string. Mirrors the encoding
+ * used by `putFile` (`btoa(unescape(encodeURIComponent(content)))`). */
+const decodeBase64Content = (base64: string): string =>
+  decodeURIComponent(escape(atob(base64.replace(/\s/g, ''))))
+
 function updateRateLimit(headers: AxiosResponseHeaders | RawAxiosResponseHeaders, rl: RateLimit): void {
   rl.limit = Number(headers['x-ratelimit-limit'] || NaN) || null
   rl.remaining = Number(headers['x-ratelimit-remaining'] || NaN) || null
@@ -109,6 +115,23 @@ export function createGithubApi(token?: string): GithubApi {
     async getFileText(repo: string, path: string, branch?: string): Promise<FileTextResult> {
       const { owner, name } = parseRepo(repo)
       const branchRef = branch || 'main'
+
+      // Private repos 404 against unauthenticated raw.githubusercontent.com, so
+      // when a token is configured, read the file body via the authenticated
+      // Contents API instead (works for both public and private repos). The
+      // Contents API caps file size at ~1MB; raw has no such limit, so we keep
+      // using raw for the no-token / public-repo case (it's also faster/cheaper).
+      if (token) {
+        const { data } = await http.get<{ content?: string; encoding?: string; sha?: string }>(
+          `/repos/${owner}/${name}/contents/${path}`,
+          { params: { ref: branchRef } }
+        )
+        if (Array.isArray(data) || typeof data.content !== 'string') {
+          throw new Error(`Expected a file at "${path}", got a directory or content-less response`)
+        }
+        return { decodedContent: decodeBase64Content(data.content), sha: data.sha }
+      }
+
       const downloadUrl = `https://raw.githubusercontent.com/${owner}/${name}/${branchRef}/${path}`
       const { data } = await rawHttp.get<string>(downloadUrl)
       return { decodedContent: data }
