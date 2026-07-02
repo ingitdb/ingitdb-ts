@@ -189,6 +189,54 @@ describe('createGithubApi', () => {
     )
   })
 
+  // ── getFileText (private repo / authenticated) ─────────────────────────
+  it('getFileText uses authenticated Contents API when a token is configured', async () => {
+    const base64 = btoa(unescape(encodeURIComponent('yaml: content')))
+    mocks.httpMock.get.mockResolvedValueOnce({ data: { content: base64, encoding: 'base64', sha: 'filesha' } })
+    const api = createGithubApi('ghp_test')
+    const result = await api.getFileText('o/r', 'path/file.yaml')
+    expect(mocks.httpMock.get).toHaveBeenCalledWith('/repos/o/r/contents/path/file.yaml', {
+      params: { ref: 'main' }
+    })
+    expect(mocks.rawHttpMock.get).not.toHaveBeenCalled()
+    expect(result).toEqual({ decodedContent: 'yaml: content', sha: 'filesha' })
+  })
+
+  it('getFileText (authed) passes the specified branch as ref', async () => {
+    const base64 = btoa(unescape(encodeURIComponent('data')))
+    mocks.httpMock.get.mockResolvedValueOnce({ data: { content: base64, sha: 's1' } })
+    const api = createGithubApi('ghp_test')
+    await api.getFileText('o/r', 'f.yaml', 'dev')
+    expect(mocks.httpMock.get).toHaveBeenCalledWith('/repos/o/r/contents/f.yaml', {
+      params: { ref: 'dev' }
+    })
+  })
+
+  it('getFileText (authed) decodes GitHub-style line-wrapped base64 content', async () => {
+    const raw = btoa(unescape(encodeURIComponent('line1\nline2\n')))
+    const wrapped = raw.match(/.{1,4}/g)!.join('\n') // simulate GitHub's ~60-char wrapping
+    mocks.httpMock.get.mockResolvedValueOnce({ data: { content: wrapped, sha: 's2' } })
+    const api = createGithubApi('ghp_test')
+    const result = await api.getFileText('o/r', 'f.yaml')
+    expect(result.decodedContent).toBe('line1\nline2\n')
+  })
+
+  it('getFileText (authed) throws when the path is a directory (array response)', async () => {
+    mocks.httpMock.get.mockResolvedValueOnce({ data: [{ name: 'a.yaml' }] })
+    const api = createGithubApi('ghp_test')
+    await expect(api.getFileText('o/r', 'somedir')).rejects.toThrow(
+      'Expected a file at "somedir", got a directory or content-less response'
+    )
+  })
+
+  it('getFileText (authed) throws when content field is missing', async () => {
+    mocks.httpMock.get.mockResolvedValueOnce({ data: { sha: 's3' } })
+    const api = createGithubApi('ghp_test')
+    await expect(api.getFileText('o/r', 'f.yaml')).rejects.toThrow(
+      'Expected a file at "f.yaml", got a directory or content-less response'
+    )
+  })
+
   // ── putFile ─────────────────────────────────────────────────────────────
   it('putFile sends PUT with base64 content', async () => {
     mocks.httpMock.put.mockResolvedValueOnce({ data: { content: { sha: 'abc' } } })
