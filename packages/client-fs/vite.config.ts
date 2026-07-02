@@ -11,7 +11,9 @@ export default defineConfig({
       formats: ['es', 'cjs']
     },
     rollupOptions: {
-      external: ['@ingitdb/client']
+      // Externalize the workspace client and all Node built-ins — this is a
+      // Node filesystem-backed package and must not bundle `node:*` modules.
+      external: [/^@ingitdb\/client$/, /^node:/]
     }
   },
   plugins: [dts({ insertTypesEntry: true })]
