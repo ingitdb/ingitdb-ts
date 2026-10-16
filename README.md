@@ -12,12 +12,6 @@ This is a **pnpm workspace monorepo** containing three packages:
 
 <!-- dev-approach:v1 -->
 
-## Flagship ecosystem product
-
-DataTug is exploring inGitDB for project definitions and version-controlled content. That integration work is ongoing; this repository contains the TypeScript client.
-
-DataTug is the flagship ecosystem product. [Explore DataTug](https://datatug.app), and read [how we built its development tools](https://datatug.app/en/under-the-hood/tools-we-built/) for the open-source tools and standards behind it.
-
 ## Our approach to development
 
 We build with our own tooling:
@@ -29,6 +23,10 @@ We build with our own tooling:
 - **[cover100.dev](https://cover100.dev)** — drive toward 100% test coverage
 - **[DataTug](https://datatug.io)** — query & explore data
 <!-- /dev-approach -->
+
+## DataTug project-content integration
+
+[DataTug](https://datatug.app) is exploring inGitDB for project definitions and version-controlled content; integration work is ongoing. This repository contains the TypeScript client. Read [how DataTug’s development tools were built](https://datatug.app/en/under-the-hood/tools-we-built/).
 
 ## Quick start
 
