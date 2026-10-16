@@ -11,6 +11,13 @@ This is a **pnpm workspace monorepo** containing three packages:
 | [`@ingitdb/client-fs`](packages/client-fs/) | [![npm](https://img.shields.io/npm/v/@ingitdb/client-fs)](https://www.npmjs.com/package/@ingitdb/client-fs) | Local filesystem implementation *(coming soon)* |
 
 <!-- dev-approach:v1 -->
+
+## Flagship ecosystem product
+
+DataTug is exploring inGitDB for project definitions and version-controlled content. That integration work is ongoing; this repository contains the TypeScript client.
+
+DataTug is the flagship ecosystem product. [Explore DataTug](https://datatug.app), and read [how we built its development tools](https://datatug.app/en/under-the-hood/tools-we-built/) for the open-source tools and standards behind it.
+
 ## Our approach to development
 
 We build with our own tooling:
