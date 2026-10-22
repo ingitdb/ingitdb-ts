@@ -34,6 +34,16 @@ function mockCache(): Cache {
 }
 
 describe('loadRepoSettings', () => {
+  it('reads cache_control and ignores a non-string or blank one', async () => {
+    const mk = (yaml: string) => {
+      const api = mockGithubApi({ getFileText: vi.fn().mockResolvedValue({ decodedContent: yaml }) })
+      return loadRepoSettings('o/r', 'main', true, { githubApi: api, cache: mockCache() })
+    }
+    expect((await mk('cache_control: " public, max-age=60 "\n')).cache_control).toBe('public, max-age=60')
+    expect((await mk('cache_control: 5\n')).cache_control).toBeUndefined()
+    expect((await mk('cache_control: "  "\n')).cache_control).toBeUndefined()
+  })
+
   let githubApi: GithubApi
   let cache: Cache
   let deps: RepoSettingsDeps

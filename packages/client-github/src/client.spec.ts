@@ -22,6 +22,7 @@ const mocks = vi.hoisted(() => {
     loadDatabaseConfig: vi.fn().mockResolvedValue({ rawYaml: '', collections: [], views: [], triggers: [], subscribers: [] }),
     loadCollectionSchema: vi.fn().mockResolvedValue({ schema: { columns: [], columns_order: [], columnsMap: {} }, schemaYaml: '', collectionPath: '' }),
     loadCollectionRecords: vi.fn().mockResolvedValue({ records: [], ingrColumnTypes: {} }),
+    loadCollectionCacheControl: vi.fn().mockResolvedValue('max-age=60'),
     loadRecord: vi.fn().mockResolvedValue({ _path: 'p' }),
     loadRepoMeta: vi.fn().mockResolvedValue({}),
     loadRepoSettings: vi.fn().mockResolvedValue({ languages: [] }),
@@ -41,7 +42,8 @@ vi.mock('@ingitdb/client', () => ({
 vi.mock('./database/database-config', () => ({ loadDatabaseConfig: mocks.loadDatabaseConfig }))
 vi.mock('./collection/collection', () => ({
   loadCollectionSchema: mocks.loadCollectionSchema,
-  loadCollectionRecords: mocks.loadCollectionRecords
+  loadCollectionRecords: mocks.loadCollectionRecords,
+  loadCollectionCacheControl: mocks.loadCollectionCacheControl
 }))
 vi.mock('./collection/record', () => ({ loadRecord: mocks.loadRecord }))
 vi.mock('./repo/repo', () => ({ loadRepoMeta: mocks.loadRepoMeta }))
@@ -116,6 +118,12 @@ describe('createIngitDbClient', () => {
     const client = createIngitDbClient()
     await client.loadRepoSettings('o/r', 'main', true)
     expect(mocks.loadRepoSettings).toHaveBeenCalledWith('o/r', 'main', true, expect.any(Object))
+  })
+
+  it('loadCollectionCacheControl delegates correctly', async () => {
+    const client = createIngitDbClient()
+    expect(await client.loadCollectionCacheControl('o/r', 'main', 'countries')).toBe('max-age=60')
+    expect(mocks.loadCollectionCacheControl).toHaveBeenCalledWith('o/r', 'main', 'countries', expect.any(Object))
   })
 
   it('loadFKViews delegates correctly', async () => {

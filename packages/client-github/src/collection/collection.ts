@@ -1,7 +1,8 @@
 import { parseIngr } from '@ingr/codec'
 import type { GithubApi } from '../github/github-api'
 import type { Cache, CollectionSchema, RecordRow } from '@ingitdb/client'
-import { buildCacheKey, parseCollectionSchema, parseYaml } from '@ingitdb/client'
+import { buildCacheKey, effectiveCacheControl, freshnessTtlMs, parseCollectionSchema, parseYaml } from '@ingitdb/client'
+import { loadRepoSettings } from '../repo/repo-settings'
 
 /** Dependencies required by collection functions. */
 export interface CollectionDeps {
@@ -79,6 +80,38 @@ export const resolveCollectionPath = async (
 }
 
 /**
+ * The effective `cache_control` for a collection's files: the collection's own
+ * value when declared, otherwise the database one from `.ingitdb/settings.yaml`.
+ * Returns undefined when neither declares one. A settings file that cannot be
+ * read never fails the caller; the setting is then treated as undeclared.
+ */
+export const resolveCacheControl = async (
+  repo: string,
+  branch: string | undefined,
+  schema: CollectionSchema | undefined,
+  deps: CollectionDeps
+): Promise<string | undefined> => {
+  let database: string | undefined
+  try {
+    database = (await loadRepoSettings(repo, branch, false, deps)).cache_control
+  } catch {
+    database = undefined
+  }
+  return effectiveCacheControl(database, schema?.cache_control)
+}
+
+/** Loads a collection's schema, then resolves its effective `cache_control` (see resolveCacheControl). */
+export const loadCollectionCacheControl = async (
+  repo: string,
+  branch: string | undefined,
+  collectionId: string,
+  deps: CollectionDeps
+): Promise<string | undefined> => {
+  const { schema } = await loadCollectionSchema(repo, branch, collectionId, deps)
+  return resolveCacheControl(repo, branch, schema, deps)
+}
+
+/**
  * Loads the collection schema (definition.yaml) for a given collectionId.
  * Returns the parsed schema, raw YAML, and resolved data path.
  */
@@ -150,6 +183,13 @@ export const loadCollectionRecords = async (
     }
   }
 
+  // Declared cache_control tightens, or for a commit-SHA ref relaxes, how long the records stay cached.
+  const recordsTtl = freshnessTtlMs({
+    declared: await resolveCacheControl(repo, branch, schema, deps),
+    ref: branch,
+    defaultTtlMs: RECORDS_TTL
+  })
+
   const sch = schema || {}
   const colPath = collectionPath || (sch as CollectionSchema).path || collectionId
   const recordFilePattern = (sch as CollectionSchema).record_file?.name || '{key}.yaml'
@@ -193,7 +233,7 @@ export const loadCollectionRecords = async (
           loaded = (data as RecordRow[]).map((item, idx) => ({ _id: String(idx), ...item }))
         }
       }
-      await cache.set(cacheKey, { records: loaded, columnTypes: { ...ingrColumnTypes } }, RECORDS_TTL)
+      await cache.set(cacheKey, { records: loaded, columnTypes: { ...ingrColumnTypes } }, recordsTtl)
       return { records: loaded, ingrColumnTypes }
     } catch (e) {
       if ((e as { response?: { status?: number } })?.response?.status === 404) {
@@ -222,7 +262,7 @@ export const loadCollectionRecords = async (
           }))
         }
       }
-      await cache.set(cacheKey, { records: loaded, columnTypes: {} }, RECORDS_TTL)
+      await cache.set(cacheKey, { records: loaded, columnTypes: {} }, recordsTtl)
       return { records: loaded, ingrColumnTypes: {} }
     } catch (e) {
       if ((e as { response?: { status?: number } })?.response?.status === 404) {
@@ -290,7 +330,7 @@ export const loadCollectionRecords = async (
     })
   }
 
-  await cache.set(cacheKey, { records: loaded, columnTypes: {} }, RECORDS_TTL)
+  await cache.set(cacheKey, { records: loaded, columnTypes: {} }, recordsTtl)
   return { records: loaded, ingrColumnTypes: {} }
 }
 
