@@ -27,9 +27,10 @@ export async function loadRepoSettings(
   }
   try {
     const file = await githubApi.getFileText(repo, '.ingitdb/settings.yaml', branch)
-    const parsed = parseYaml(file.decodedContent) as { languages?: LanguageEntry[] } | null
+    const parsed = parseYaml(file.decodedContent) as { languages?: LanguageEntry[]; cache_control?: unknown } | null
     const settings: RepoSettings = { languages: [] }
     if (parsed?.languages && Array.isArray(parsed.languages)) settings.languages = parsed.languages
+    if (typeof parsed?.cache_control === 'string' && parsed.cache_control.trim() !== '') settings.cache_control = parsed.cache_control.trim()
     await cache.set(cacheKey, settings, SETTINGS_TTL)
     return settings
   } catch (err) {

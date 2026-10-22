@@ -3,7 +3,7 @@ import { createCache, type Cache, type IngitDbClient, type IngitDbClientOptions 
 import { idbCache } from './cache/idb-cache'
 import { createIdbCommittedChangesStore } from './changes/idb-committed-changes'
 import { loadDatabaseConfig } from './database/database-config'
-import { loadCollectionSchema, loadCollectionRecords } from './collection/collection'
+import { loadCollectionSchema, loadCollectionRecords, loadCollectionCacheControl } from './collection/collection'
 import { loadRecord } from './collection/record'
 import { loadRepoMeta } from './repo/repo'
 import { loadRepoSettings } from './repo/repo-settings'
@@ -14,6 +14,12 @@ export type { IngitDbClientOptions }
 
 export interface IngitDbGithubClient extends IngitDbClient {
   githubApi: GithubApi
+  /**
+   * The effective `cache_control` (HTTP Cache-Control directives) for a collection:
+   * the collection's own value, else the database's, else undefined. Records are
+   * cached in-process according to it; expose it to apply it to other caches.
+   */
+  loadCollectionCacheControl(repo: string, branch: string | undefined, collectionId: string): Promise<string | undefined>
 }
 
 /**
@@ -39,7 +45,7 @@ export function createIngitDbClient(options?: IngitDbClientOptions): IngitDbGith
       ? createCache()        // memory-only, no persistence
       : createCache(idbCache) // IDB-backed (default for browser)
 
-  const deps = { githubApi, cache: cacheInstance }
+  const deps = { githubApi, cache: cacheInstance, pinnedRefs: options?.pinnedRefs }
 
   return {
     githubApi,
@@ -53,6 +59,9 @@ export function createIngitDbClient(options?: IngitDbClientOptions): IngitDbGith
 
     loadCollectionRecords: (repo, branch, collectionId, schema, collectionPath, skipCache) =>
       loadCollectionRecords(repo, branch, collectionId, schema, collectionPath, deps, skipCache),
+
+    loadCollectionCacheControl: (repo, branch, collectionId) =>
+      loadCollectionCacheControl(repo, branch, collectionId, deps),
 
     loadRecord: (repo, recordPath, branch) =>
       loadRecord(repo, recordPath, branch, { githubApi }),

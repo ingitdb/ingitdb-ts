@@ -5,6 +5,12 @@ import type { CollectionSchema } from './schema/schema'
 export interface IngitDbClientOptions {
   token?: string
   cache?: boolean | { ttl?: number }
+  /**
+   * Refs the caller has resolved to immutable commit SHAs. Only reads at one of
+   * these refs count as pinned for `cache_control`; a ref that merely looks like
+   * a SHA does not, because a branch or tag can be named that way.
+   */
+  pinnedRefs?: readonly string[]
 }
 
 export interface IngitDbClient {

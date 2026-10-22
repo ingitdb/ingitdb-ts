@@ -34,6 +34,8 @@ export interface RepoMeta {
 
 export interface RepoSettings {
   languages: { required?: string; optional?: string }[]
+  /** Database-level `cache_control` (HTTP Cache-Control directives), when declared. */
+  cache_control?: string
 }
 
 // ─── Change Management ───────────────────────────────────────────────────────

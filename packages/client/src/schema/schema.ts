@@ -14,6 +14,8 @@ export interface CollectionSchema {
   record_file?: { name?: string }
   default_view?: Record<string, unknown> | null
   path?: string
+  /** Collection-level `cache_control` (HTTP Cache-Control directives), when declared. */
+  cache_control?: string
   [key: string]: unknown
 }
 

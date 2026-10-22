@@ -24,7 +24,9 @@ export { idbCache } from './cache/idb-cache'
 export {
   resolveCollectionPath,
   loadCollectionSchema,
-  loadCollectionRecords
+  loadCollectionRecords,
+  loadCollectionCacheControl,
+  resolveCacheControl
 } from './collection/collection'
 export type { CollectionDeps } from './collection/collection'
 

@@ -1,13 +1,16 @@
 import { parseIngr } from '@ingr/codec'
 import type { GithubApi } from '../github/github-api'
 import type { Cache, CollectionSchema, RecordRow } from '@ingitdb/client'
-import { buildCacheKey, parseCollectionSchema, parseYaml } from '@ingitdb/client'
+import { buildCacheKey, effectiveCacheControl, freshnessTtlMs, isPinned, parseCollectionSchema, parseYaml } from '@ingitdb/client'
+import { loadRepoSettings } from '../repo/repo-settings'
 
 /** Dependencies required by collection functions. */
 export interface CollectionDeps {
   githubApi: GithubApi
   cache: Cache
   maxRecords?: number
+  /** Refs the caller resolved to immutable commit SHAs; only these count as pinned for cache_control. */
+  pinnedRefs?: readonly string[]
 }
 
 const parseFileContent = (content: string, filePath: string): unknown => {
@@ -76,6 +79,41 @@ export const resolveCollectionPath = async (
   }
 
   return collectionId
+}
+
+/**
+ * The effective `cache_control` for a collection's files: the collection's own
+ * value when declared, otherwise the database one from `.ingitdb/settings.yaml`.
+ * Returns undefined when neither declares one. A settings file that cannot be
+ * read (other than a 404, which means none) never fails the caller; it fails
+ * closed to `no-cache`.
+ */
+export const resolveCacheControl = async (
+  repo: string,
+  branch: string | undefined,
+  schema: CollectionSchema | undefined,
+  deps: CollectionDeps
+): Promise<string | undefined> => {
+  let database: string | undefined
+  try {
+    database = (await loadRepoSettings(repo, branch, false, deps)).cache_control
+  } catch {
+    // Fail closed: if the database setting cannot be read it might say no-store,
+    // so reuse nothing until it can be.
+    return 'no-cache'
+  }
+  return effectiveCacheControl(database, schema?.cache_control)
+}
+
+/** Loads a collection's schema, then resolves its effective `cache_control` (see resolveCacheControl). */
+export const loadCollectionCacheControl = async (
+  repo: string,
+  branch: string | undefined,
+  collectionId: string,
+  deps: CollectionDeps
+): Promise<string | undefined> => {
+  const { schema } = await loadCollectionSchema(repo, branch, collectionId, deps)
+  return resolveCacheControl(repo, branch, schema, deps)
 }
 
 /**
@@ -150,6 +188,21 @@ export const loadCollectionRecords = async (
     }
   }
 
+  // Declared cache_control tightens, or for a commit-SHA ref relaxes, how long the records stay cached.
+  const declared = await resolveCacheControl(repo, branch, schema, deps)
+  const pinned = isPinned(branch, deps.pinnedRefs)
+  const origins: (string | undefined)[] = []
+  const recordsTtl = () => {
+    const ttls = (origins.length > 0 ? origins : [undefined]).map((origin) =>
+      freshnessTtlMs({ declared, pinned, origin, defaultTtlMs: RECORDS_TTL }))
+    return Math.min(...ttls)
+  }
+  // A zero TTL (no-store, no-cache, max-age=0) means nothing is written to the cache at all.
+  const storeRecords = async (value: { records: RecordRow[]; columnTypes: Record<string, string> }) => {
+    const ttl = recordsTtl()
+    if (ttl > 0) await cache.set(cacheKey, value, ttl)
+  }
+
   const sch = schema || {}
   const colPath = collectionPath || (sch as CollectionSchema).path || collectionId
   const recordFilePattern = (sch as CollectionSchema).record_file?.name || '{key}.yaml'
@@ -165,6 +218,7 @@ export const loadCollectionRecords = async (
     const viewFilePath = `$ingitdb/${colPath}/${viewFileName}`
     try {
       const file = await githubApi.getFileText(repo, viewFilePath, branch)
+      origins.push(file.cacheControl)
       if (viewFileName.endsWith('.ingr')) {
         const parsed = parseIngr(file.decodedContent)
         // Build column type map from header
@@ -193,7 +247,7 @@ export const loadCollectionRecords = async (
           loaded = (data as RecordRow[]).map((item, idx) => ({ _id: String(idx), ...item }))
         }
       }
-      await cache.set(cacheKey, { records: loaded, columnTypes: { ...ingrColumnTypes } }, RECORDS_TTL)
+      await storeRecords({ records: loaded, columnTypes: { ...ingrColumnTypes } })
       return { records: loaded, ingrColumnTypes }
     } catch (e) {
       if ((e as { response?: { status?: number } })?.response?.status === 404) {
@@ -209,6 +263,7 @@ export const loadCollectionRecords = async (
     try {
       const filePath = `${colPath}/${recordFilePattern}`
       const file = await githubApi.getFileText(repo, filePath, branch)
+      origins.push(file.cacheControl)
       const data = parseFileContent(file.decodedContent, filePath)
       if (typeof data === 'object' && data !== null) {
         if (Array.isArray(data)) {
@@ -222,7 +277,7 @@ export const loadCollectionRecords = async (
           }))
         }
       }
-      await cache.set(cacheKey, { records: loaded, columnTypes: {} }, RECORDS_TTL)
+      await storeRecords({ records: loaded, columnTypes: {} })
       return { records: loaded, ingrColumnTypes: {} }
     } catch (e) {
       if ((e as { response?: { status?: number } })?.response?.status === 404) {
@@ -270,9 +325,10 @@ export const loadCollectionRecords = async (
     const batch = filesToFetch.slice(i, i + BATCH)
     const results = await Promise.allSettled(
       batch.map(async (item) => {
-        let file: { decodedContent: string; sha?: string } | null = null
+        let file: { decodedContent: string; sha?: string; cacheControl?: string } | null = null
         try {
           file = await githubApi.getFileText(repo, item.path, branch)
+          origins.push(file.cacheControl)
           const parsed = parseFileContent(file.decodedContent, item.path)
           return { _id: item.id, _path: item.path, _sha: file.sha, ...(parsed as Record<string, unknown>) }
         } catch (err) {
@@ -290,7 +346,7 @@ export const loadCollectionRecords = async (
     })
   }
 
-  await cache.set(cacheKey, { records: loaded, columnTypes: {} }, RECORDS_TTL)
+  await storeRecords({ records: loaded, columnTypes: {} })
   return { records: loaded, ingrColumnTypes: {} }
 }
 
