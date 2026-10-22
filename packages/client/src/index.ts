@@ -12,7 +12,7 @@ export type { IngitDbClient, IngitDbClientOptions } from './client'
 // ─── Cache ───────────────────────────────────────────────────────────────────
 export { cache, createCache, buildCacheKey } from './cache/cache'
 export type { Cache, StorageAdapter } from './cache/cache'
-export { parseCacheControl, effectiveCacheControl, isPinnedRef, freshnessTtlMs } from './cache/cache-control'
+export { parseCacheControl, effectiveCacheControl, isPinned, freshnessTtlMs, MAX_DELTA_SECONDS, IMMUTABLE_TTL_SECONDS } from './cache/cache-control'
 export type { ParsedCacheControl, FreshnessInput } from './cache/cache-control'
 
 // ─── Schema ──────────────────────────────────────────────────────────────────

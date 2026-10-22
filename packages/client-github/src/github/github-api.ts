@@ -8,9 +8,13 @@ export interface RateLimit {
   reset: number | null
 }
 
+const headerValue = (v: unknown): string | undefined => (typeof v === 'string' && v !== '' ? v : undefined)
+
 export interface FileTextResult {
   decodedContent: string
   sha?: string
+  /** The origin's own Cache-Control response header, when it sent one. */
+  cacheControl?: string
 }
 
 export interface PutFileParams {
@@ -122,19 +126,19 @@ export function createGithubApi(token?: string): GithubApi {
       // Contents API caps file size at ~1MB; raw has no such limit, so we keep
       // using raw for the no-token / public-repo case (it's also faster/cheaper).
       if (token) {
-        const { data } = await http.get<{ content?: string; encoding?: string; sha?: string }>(
+        const { data, headers } = await http.get<{ content?: string; encoding?: string; sha?: string }>(
           `/repos/${owner}/${name}/contents/${path}`,
           { params: { ref: branchRef } }
         )
         if (Array.isArray(data) || typeof data.content !== 'string') {
           throw new Error(`Expected a file at "${path}", got a directory or content-less response`)
         }
-        return { decodedContent: decodeBase64Content(data.content), sha: data.sha }
+        return { decodedContent: decodeBase64Content(data.content), sha: data.sha, cacheControl: headerValue(headers?.['cache-control']) }
       }
 
       const downloadUrl = `https://raw.githubusercontent.com/${owner}/${name}/${branchRef}/${path}`
-      const { data } = await rawHttp.get<string>(downloadUrl)
-      return { decodedContent: data }
+      const { data, headers } = await rawHttp.get<string>(downloadUrl)
+      return { decodedContent: data, cacheControl: headerValue(headers?.['cache-control']) }
     },
 
     async putFile({ repo, path, content, message, sha, branch }: PutFileParams): Promise<Record<string, unknown>> {

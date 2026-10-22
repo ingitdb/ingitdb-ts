@@ -1,36 +1,48 @@
 import { describe, it, expect } from 'vitest'
-import { parseCacheControl, effectiveCacheControl, isPinnedRef, freshnessTtlMs } from './cache-control'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { parseYaml } from '../utils/yaml'
+import { parseCacheControl, effectiveCacheControl, isPinned, freshnessTtlMs } from './cache-control'
 
-const SHA = 'a'.repeat(40)
-const FIVE_MIN = 300_000
-const YEAR = 31_536_000
-const DECLARED = `public, max-age=${YEAR}, immutable`
+interface Vectors {
+  parse: { input: string; valid: boolean; maxAge: number | null; noStore: boolean; noCache: boolean; immutable: boolean }[]
+  freshness: { name: string; declared: string | null; ref: string; origin: string | null; default: number; expect: number }[]
+}
+// Vendored byte-for-byte from ingitdb/ingitdb conformance/cache-control/vectors.yaml.
+const vectors = parseYaml(
+  readFileSync(join(__dirname, '__fixtures__', 'cache-control-vectors.yaml'), 'utf8')
+) as Vectors
+
+describe('shared conformance vectors', () => {
+  it.each(vectors.parse.map((r) => [r.input, r] as const))('parse %j', (_input, row) => {
+    const cc = parseCacheControl(row.input)
+    expect(cc?.maxAgeSeconds ?? null).toBe(row.maxAge)
+    expect(cc?.noStore ?? false).toBe(row.noStore)
+    expect(cc?.noCache ?? false).toBe(row.noCache)
+    expect(cc?.immutable ?? false).toBe(row.immutable)
+  })
+
+  it.each(vectors.freshness.map((r) => [r.name, r] as const))('freshness %s', (_name, row) => {
+    const ttl = freshnessTtlMs({
+      declared: row.declared ?? undefined,
+      pinned: row.ref === 'pinned',
+      origin: row.origin ?? undefined,
+      defaultTtlMs: row.default * 1000
+    })
+    expect(ttl).toBe(row.expect * 1000)
+  })
+})
 
 describe('parseCacheControl', () => {
-  it('parses directives case-insensitively with quoted arguments', () => {
-    const cc = parseCacheControl(' Public, MAX-AGE=60 , x-custom="a,b\\"c", immutable ')
-    expect(cc?.maxAgeSeconds).toBe(60)
-    expect(cc?.immutable).toBe(true)
-    expect(cc?.noStore).toBe(false)
+  it('keeps unknown directives and unquotes arguments', () => {
+    const cc = parseCacheControl('x-custom="a,b\\"c", future=1')
     expect(cc?.directives['x-custom']).toBe('a,b"c')
-  })
-
-  it('ignores unknown directives and drops malformed ones', () => {
-    const cc = parseCacheControl('max-age=soon, future=1, bad name, =x, no-cache, no-cache, ,')
-    expect(cc?.maxAgeSeconds).toBeUndefined()
-    expect(cc?.noCache).toBe(true)
     expect(cc?.directives['future']).toBe('1')
   })
-
-  it('returns undefined for empty, non-string or wholly unusable values', () => {
+  it('returns undefined for non-strings and blanks', () => {
     expect(parseCacheControl(undefined)).toBeUndefined()
-    expect(parseCacheControl('   ')).toBeUndefined()
     expect(parseCacheControl(42)).toBeUndefined()
-    expect(parseCacheControl('max-age=x')).toBeUndefined()
-  })
-
-  it('reads no-store', () => {
-    expect(parseCacheControl('no-store')?.noStore).toBe(true)
+    expect(parseCacheControl('  ')).toBeUndefined()
   })
 })
 
@@ -45,32 +57,21 @@ describe('effectiveCacheControl', () => {
   })
 })
 
-describe('isPinnedRef', () => {
-  it('accepts full SHA-1 and SHA-256 commit ids only', () => {
-    expect(isPinnedRef(SHA)).toBe(true)
-    expect(isPinnedRef('B'.repeat(64))).toBe(true)
-    expect(isPinnedRef('main')).toBe(false)
-    expect(isPinnedRef('abc1234')).toBe(false)
-    expect(isPinnedRef(undefined)).toBe(false)
+describe('isPinned', () => {
+  const SHA = 'a'.repeat(40)
+  it('is true only for a ref the caller listed', () => {
+    expect(isPinned(SHA, [SHA])).toBe(true)
+    expect(isPinned('main', [SHA])).toBe(false)
+  })
+  it('does not trust a SHA-shaped ref the caller did not list', () => {
+    expect(isPinned(SHA, [])).toBe(false)
+    expect(isPinned(SHA, undefined)).toBe(false)
+    expect(isPinned(undefined, [SHA])).toBe(false)
   })
 })
 
-describe('freshnessTtlMs', () => {
-  it('uses the default when nothing usable is declared', () => {
-    expect(freshnessTtlMs({ defaultTtlMs: FIVE_MIN })).toBe(FIVE_MIN)
-    expect(freshnessTtlMs({ declared: 'public', defaultTtlMs: FIVE_MIN })).toBe(FIVE_MIN)
-  })
-  it('only tightens on an unpinned read', () => {
-    expect(freshnessTtlMs({ declared: DECLARED, ref: 'main', defaultTtlMs: FIVE_MIN })).toBe(FIVE_MIN)
-    expect(freshnessTtlMs({ declared: DECLARED, defaultTtlMs: FIVE_MIN })).toBe(FIVE_MIN)
-    expect(freshnessTtlMs({ declared: 'max-age=60', ref: 'main', defaultTtlMs: FIVE_MIN })).toBe(60_000)
-    expect(freshnessTtlMs({ declared: 'max-age=900', ref: 'main', defaultTtlMs: FIVE_MIN, originMaxAgeSeconds: 3600 })).toBe(900_000)
-  })
-  it('may relax on a read pinned to a commit SHA', () => {
-    expect(freshnessTtlMs({ declared: DECLARED, ref: SHA, defaultTtlMs: FIVE_MIN })).toBe(YEAR * 1000)
-  })
-  it('lets no-store and no-cache win in both cases', () => {
-    expect(freshnessTtlMs({ declared: 'no-store', ref: SHA, defaultTtlMs: FIVE_MIN })).toBe(0)
-    expect(freshnessTtlMs({ declared: 'max-age=9, no-cache', ref: 'main', defaultTtlMs: FIVE_MIN })).toBe(0)
+describe('freshnessTtlMs defaults', () => {
+  it('uses the default TTL when nothing is declared and the origin is silent', () => {
+    expect(freshnessTtlMs({ defaultTtlMs: 300_000 })).toBe(300_000)
   })
 })

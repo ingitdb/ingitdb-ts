@@ -45,7 +45,7 @@ export function createIngitDbClient(options?: IngitDbClientOptions): IngitDbGith
       ? createCache()        // memory-only, no persistence
       : createCache(idbCache) // IDB-backed (default for browser)
 
-  const deps = { githubApi, cache: cacheInstance }
+  const deps = { githubApi, cache: cacheInstance, pinnedRefs: options?.pinnedRefs }
 
   return {
     githubApi,

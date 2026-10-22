@@ -180,6 +180,17 @@ describe('createGithubApi', () => {
     expect(result).toEqual({ decodedContent: 'yaml: content' })
   })
 
+  it('getFileText returns the origin Cache-Control header from raw', async () => {
+    mocks.rawHttpMock.get.mockResolvedValueOnce({ data: 'd', headers: { 'cache-control': 'max-age=300' } })
+    expect((await createGithubApi().getFileText('o/r', 'f.yaml')).cacheControl).toBe('max-age=300')
+  })
+
+  it('getFileText returns the origin Cache-Control header from the Contents API', async () => {
+    const base64 = btoa('x')
+    mocks.httpMock.get.mockResolvedValueOnce({ data: { content: base64, encoding: 'base64' }, headers: { 'cache-control': 'private, max-age=60' } })
+    expect((await createGithubApi('ghp_test').getFileText('o/r', 'f.yaml')).cacheControl).toBe('private, max-age=60')
+  })
+
   it('getFileText uses specified branch', async () => {
     mocks.rawHttpMock.get.mockResolvedValueOnce({ data: 'data' })
     const api = createGithubApi()
