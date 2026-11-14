@@ -1,7 +1,10 @@
 import { parseIngr } from '@ingr/codec'
 import type { GithubApi } from '../github/github-api'
-import type { Cache, CollectionSchema, RecordRow } from '@ingitdb/client'
-import { buildCacheKey, effectiveCacheControl, freshnessTtlMs, isPinned, parseCollectionSchema, parseYaml } from '@ingitdb/client'
+import type { Cache, CollectionSchema, LayoutReader, RecordRow, ResolvedCollection } from '@ingitdb/client'
+import {
+  assertNoKeyEncoding, buildCacheKey, effectiveCacheControl, freshnessTtlMs, isPinned, joinPath, parseCollectionSchema,
+  parseSubcollectionPath, parseYaml, recordsBasePath, resolveDataPath, resolveSubcollection
+} from '@ingitdb/client'
 import { loadRepoSettings } from '../repo/repo-settings'
 
 /** Dependencies required by collection functions. */
@@ -25,19 +28,27 @@ const parseFileContent = (content: string, filePath: string): unknown => {
 
 const SCHEMA_TTL = 5 * 60 * 1000
 const RECORDS_TTL = 5 * 60 * 1000
-const SHARED_LAYOUT_SEGMENT = '/.collections/'
 export const DEFAULT_MAX_RECORDS = 20
 
 /**
  * Resolves the physical collection path from a collectionId by consulting
- * `.ingitdb/root-collections.yaml` and handling namespace expansion.
+ * `.ingitdb/root-collections.yaml` and handling namespace expansion. An id the
+ * mapping does not name is returned unchanged.
  */
 export const resolveCollectionPath = async (
   repo: string,
   branch: string | undefined,
   collectionId: string,
   deps: CollectionDeps
-): Promise<string> => {
+): Promise<string> => (await lookupCollectionPath(repo, branch, collectionId, deps)) ?? collectionId
+
+/** The path `.ingitdb/root-collections.yaml` maps collectionId to, or null when it maps none. */
+const lookupCollectionPath = async (
+  repo: string,
+  branch: string | undefined,
+  collectionId: string,
+  deps: CollectionDeps
+): Promise<string | null> => {
   const { githubApi, cache } = deps
   const cacheKey = buildCacheKey('root-collections', repo, branch || 'default')
   let mapping = await cache.get<Record<string, string>>(cacheKey)
@@ -78,8 +89,24 @@ export const resolveCollectionPath = async (
     }
   }
 
-  return collectionId
+  return null
 }
+
+const isNotFound = (e: unknown): boolean => (e as { response?: { status?: number } })?.response?.status === 404
+
+/** Repository reads for the shared layout rules, over the GitHub contents API. */
+const layoutReader = (repo: string, branch: string | undefined, githubApi: GithubApi): LayoutReader => ({
+  readText: async (path) => {
+    try { return (await githubApi.getFileText(repo, path, branch)).decodedContent }
+    catch (e) { if (isNotFound(e)) return null; throw e }
+  },
+  listDir: async (path) => {
+    try {
+      const entries = await githubApi.getContents(repo, path, branch)
+      return Array.isArray(entries) ? (entries as { name: string }[]).map((entry) => entry.name) : null
+    } catch (e) { if (isNotFound(e)) return null; throw e }
+  }
+})
 
 /**
  * The effective `cache_control` for a collection's files: the collection's own
@@ -137,31 +164,39 @@ export const loadCollectionSchema = async (
     }
   }
 
-  const resolvedPath = await resolveCollectionPath(repo, branch, collectionId, deps)
-
-  let file: { decodedContent: string } | null = null
-  const paths = [
-    `${resolvedPath}/.collection/definition.yaml`,
-    `${resolvedPath}/definition.yaml`,            // .collections/ shared layout
-    `${collectionId}/.collection/definition.yaml`,
-  ]
-  for (const path of paths) {
-    try { file = await githubApi.getFileText(repo, path, branch); break }
-    catch (e) { if ((e as { response?: { status?: number } })?.response?.status !== 404) throw e }
+  const mapped = await lookupCollectionPath(repo, branch, collectionId, deps)
+  // A subcollection path (<root>/<key>/<sub>...) resolves where the definition
+  // puts each instance, inside the parent's records directory (ingitdb-ts#106).
+  const nested = mapped === null ? parseSubcollectionPath(collectionId) : null
+  let resolved: ResolvedCollection
+  if (nested) {
+    const rootPath = await resolveCollectionPath(repo, branch, nested.root, deps)
+    resolved = await resolveSubcollection(collectionId, rootPath, nested.steps, layoutReader(repo, branch, githubApi))
+  } else {
+    const resolvedPath = mapped ?? collectionId
+    let file: { decodedContent: string } | null = null
+    const paths = [
+      `${resolvedPath}/.collection/definition.yaml`,
+      `${resolvedPath}/definition.yaml`,            // .collections/ shared layout
+      `${collectionId}/.collection/definition.yaml`,
+    ]
+    for (const path of paths) {
+      try { file = await githubApi.getFileText(repo, path, branch); break }
+      catch (e) { if (!isNotFound(e)) throw e }
+    }
+    const schema = parseCollectionSchema(file ? file.decodedContent : {})
+    resolved = {
+      schema,
+      schemaYaml: file ? file.decodedContent : '',
+      dataPath: resolveDataPath(resolvedPath, schema.data_dir as string | null | undefined)
+    }
   }
+  // No key encoding is implemented here yet (ingitdb-ts#107): refuse rather
+  // than show file names as keys or write keys unencoded.
+  assertNoKeyEncoding(resolved.schema, collectionId)
 
-  if (!file) {
-    const dataPath = resolveDataPath(resolvedPath)
-    const schema = parseCollectionSchema({})
-    await cache.set(cacheKey, { schema, rawYaml: '', path: dataPath }, SCHEMA_TTL)
-    return { schema, schemaYaml: '', collectionPath: dataPath }
-  }
-
-  const rawYaml = file.decodedContent
-  const parsed = parseCollectionSchema(rawYaml)
-  const dataPath = resolveDataPath(resolvedPath, parsed.data_dir as string | null | undefined)
-  await cache.set(cacheKey, { schema: parsed, rawYaml, path: dataPath }, SCHEMA_TTL)
-  return { schema: parsed, schemaYaml: rawYaml, collectionPath: dataPath }
+  await cache.set(cacheKey, { schema: resolved.schema, rawYaml: resolved.schemaYaml, path: resolved.dataPath }, SCHEMA_TTL)
+  return { schema: resolved.schema, schemaYaml: resolved.schemaYaml, collectionPath: resolved.dataPath }
 }
 
 /**
@@ -261,7 +296,7 @@ export const loadCollectionRecords = async (
   // Single file
   if (!recordFilePattern.includes('{key}')) {
     try {
-      const filePath = `${colPath}/${recordFilePattern}`
+      const filePath = joinPath(colPath, recordsBasePath((sch as CollectionSchema).record_file), recordFilePattern)
       const file = await githubApi.getFileText(repo, filePath, branch)
       origins.push(file.cacheControl)
       const data = parseFileContent(file.decodedContent, filePath)
@@ -287,12 +322,13 @@ export const loadCollectionRecords = async (
     }
   }
 
-  // File per record: when {key} is present, records live under $records/ subdir
+  // File per record: when {key} is present, records live in the records
+  // directory, $records/ unless record_file.records_dir says otherwise.
   type ContentEntry = { type: string; name: string; path: string }
-  const recordsBasePath = `${colPath}/$records`
+  const recordsDir = joinPath(colPath, recordsBasePath((sch as CollectionSchema).record_file))
   let entries: ContentEntry[] = []
   try {
-    entries = await githubApi.getContents(repo, recordsBasePath, branch) as ContentEntry[]
+    entries = await githubApi.getContents(repo, recordsDir, branch) as ContentEntry[]
   } catch (e) {
     if ((e as { response?: { status?: number } })?.response?.status === 404) {
       return { records: [], ingrColumnTypes: {} }
@@ -310,7 +346,7 @@ export const loadCollectionRecords = async (
     const dirs = entries.filter((f) => f.type === 'dir' && !f.name.startsWith('.')).slice(0, deps.maxRecords ?? DEFAULT_MAX_RECORDS)
     filesToFetch = dirs.map((dir) => ({
       id: dir.name,
-      path: `${recordsBasePath}/${recordFilePattern.replace(/\{key\}/g, dir.name)}`
+      path: `${recordsDir}/${recordFilePattern.replace(/\{key\}/g, dir.name)}`
     }))
   } else {
     const fileExtRegex = /\.(yaml|yml|json)$/
@@ -351,20 +387,7 @@ export const loadCollectionRecords = async (
 }
 
 /**
- * Resolves the data directory for a collection given its schema path and optional data_dir.
- *
- * For the shared layout (`/.collections/` in the schema path):
- *   - base dir = parent of `.collections/`
- *   - data path = base dir + data_dir (or base dir when omitted / '.')
- *
- * For the dedicated layout the schema path IS the data root — returned unchanged.
+ * Resolves the data directory for a collection given its schema path and optional
+ * data_dir (shared with `@ingitdb/client-fs` through `@ingitdb/client`).
  */
-export const resolveDataPath = (schemaPath: string, dataDir?: string | null): string => {
-  const collectionsIdx = schemaPath.indexOf(SHARED_LAYOUT_SEGMENT)
-  if (collectionsIdx !== -1) {
-    const baseDir = schemaPath.slice(0, collectionsIdx)
-    if (!dataDir || dataDir === '.') return baseDir
-    return `${baseDir}/${dataDir}`
-  }
-  return schemaPath
-}
+export { resolveDataPath }

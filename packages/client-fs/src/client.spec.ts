@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { createFsIngitDbClient } from './client'
@@ -54,7 +56,8 @@ describe('createFsIngitDbClient (read-only filesystem reader)', () => {
     expect(work.records).toHaveLength(1)
     expect(family.records[0]).toMatchObject({ _id: 'c1', name: 'Alice' })
     expect(work.records[0]).toMatchObject({ _id: 'c1', name: 'Bob' })
-    expect(family.records[0]._path).toBe('spaces/family/contacts/$records/c1.yaml')
+    expect(family.records[0]._path).toBe('spaces/$records/family/contacts/$records/c1.yaml')
+    expect(familySchema.collectionPath).toBe('spaces/$records/family/contacts')
   })
 
   it('resolves the subcollection schema from <top>/.collection/subcollections/<sub>/definition.yaml', async () => {
@@ -63,9 +66,9 @@ describe('createFsIngitDbClient (read-only filesystem reader)', () => {
   })
 
   it('loadRecord reads a single record file with _path metadata', async () => {
-    const rec = await client().loadRecord(REPO, 'spaces/work/contacts/$records/c1.yaml')
+    const rec = await client().loadRecord(REPO, 'spaces/$records/work/contacts/$records/c1.yaml')
     expect(rec.name).toBe('Bob')
-    expect(rec._path).toBe('spaces/work/contacts/$records/c1.yaml')
+    expect(rec._path).toBe('spaces/$records/work/contacts/$records/c1.yaml')
   })
 
   it('returns an empty record list for a non-existent collection', async () => {
@@ -103,5 +106,93 @@ describe('createFsIngitDbClient (read-only filesystem reader)', () => {
 
   it('write path (createPendingChangesStore) is intentionally not implemented', () => {
     expect(() => client().createPendingChangesStore()).toThrow(/not implemented/)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Defined subcollection layout (ingitdb/ingitdb-ts#106) and key_encoding refusal (#107)
+// ---------------------------------------------------------------------------
+
+describe('createFsIngitDbClient layout rules', () => {
+  const perFile = "record_file:\n  name: '{key}.yaml'\n  format: yaml\n  type: map[string]any\n"
+  const dirs: string[] = []
+  afterEach(() => { while (dirs.length) rmSync(dirs.pop()!, { recursive: true, force: true }) })
+
+  /** A throw-away database with the given files (repo-relative path -> text). */
+  const db = (files: Record<string, string>): string => {
+    const root = mkdtempSync(join(tmpdir(), 'ingitdb-fs-'))
+    dirs.push(root)
+    for (const [rel, text] of Object.entries({ '.ingitdb/root-collections.yaml': 'spaces: spaces\n', ...files })) {
+      const abs = join(root, ...rel.split('/'))
+      mkdirSync(dirname(abs), { recursive: true })
+      writeFileSync(abs, text)
+    }
+    return root
+  }
+
+  it('fails on subcollection data where the definition does not put it', async () => {
+    const c = createFsIngitDbClient({ rootDir: db({
+      'spaces/.collection/definition.yaml': perFile,
+      'spaces/family/contacts/$records/c1.yaml': 'name: Alice\n',
+    }) })
+    await expect(c.loadCollectionSchema(REPO, undefined, 'spaces/family/contacts'))
+      .rejects.toThrow(/is at spaces\/family\/contacts\/, but the definition puts it at spaces\/\$records\/family\/contacts\//)
+  })
+
+  it('reads a parent with records_dir "." at <parent dir>/<key>/<sub>/', async () => {
+    const c = createFsIngitDbClient({ rootDir: db({
+      'spaces/.collection/definition.yaml': perFile + '  records_dir: "."\n',
+      'spaces/family/contacts/$records/c1.yaml': 'name: Alice\n',
+    }) })
+    const { schema, collectionPath } = await c.loadCollectionSchema(REPO, undefined, 'spaces/family/contacts')
+    expect(collectionPath).toBe('spaces/family/contacts')
+    const { records } = await c.loadCollectionRecords(REPO, undefined, 'spaces/family/contacts', schema, collectionPath)
+    expect(records).toMatchObject([{ _id: 'c1', name: 'Alice' }])
+  })
+
+  it('reads the records of a collection with a custom records_dir from that directory', async () => {
+    const c = createFsIngitDbClient({ rootDir: db({
+      'spaces/.collection/definition.yaml': perFile + '  records_dir: data\n',
+      'spaces/data/family.yaml': 'name: Family\n',
+    }) })
+    const { schema, collectionPath } = await c.loadCollectionSchema(REPO, undefined, 'spaces')
+    const { records } = await c.loadCollectionRecords(REPO, undefined, 'spaces', schema, collectionPath)
+    expect(records).toMatchObject([{ _id: 'family', _path: 'spaces/data/family.yaml' }])
+  })
+
+  it('refuses a collection that declares key_encoding, root or subcollection', async () => {
+    const c = createFsIngitDbClient({ rootDir: db({
+      'spaces/.collection/definition.yaml': perFile + '  key_encoding: tilde-v1\n',
+    }) })
+    await expect(c.loadCollectionSchema(REPO, undefined, 'spaces')).rejects.toThrow(/declares record_file.key_encoding "tilde-v1".*#107/)
+    await expect(c.loadCollectionSchema(REPO, undefined, 'spaces/a~2Fb/contacts')).rejects.toThrow(/key_encoding/)
+    const sub = createFsIngitDbClient({ rootDir: db({
+      'spaces/.collection/definition.yaml': perFile,
+      'spaces/.collection/subcollections/contacts/definition.yaml': perFile + '  key_encoding: tilde-v1\n',
+    }) })
+    await expect(sub.loadCollectionSchema(REPO, undefined, 'spaces/family/contacts')).rejects.toThrow(/collection "spaces\/family\/contacts" declares/)
+  })
+
+  it('gives an unmapped root collection without a definition an empty schema at its id', async () => {
+    const { schema, schemaYaml, collectionPath } = await createFsIngitDbClient({ rootDir: db({}) })
+      .loadCollectionSchema(REPO, undefined, 'unmapped')
+    expect(collectionPath).toBe('unmapped')
+    expect(schemaYaml).toBe('')
+    expect(schema.columns).toEqual([])
+  })
+
+  it('rethrows a directory read error other than not-found while checking the layout', async () => {
+    const root = db({ 'spaces/.collection/definition.yaml': perFile })
+    mkdirSync(join(root, 'spaces', 'family'), { recursive: true })
+    symlinkSync('contacts', join(root, 'spaces', 'family', 'contacts')) // a link to itself: ELOOP
+    await expect(createFsIngitDbClient({ rootDir: root }).loadCollectionSchema(REPO, undefined, 'spaces/family/contacts'))
+      .rejects.toThrow(/ELOOP/)
+  })
+
+  it('still rethrows a definition read error other than not-found', async () => {
+    const root = db({})
+    mkdirSync(join(root, 'spaces', '.collection', 'definition.yaml'), { recursive: true })
+    await expect(createFsIngitDbClient({ rootDir: root }).loadCollectionSchema(REPO, undefined, 'spaces/family/contacts'))
+      .rejects.toThrow(/EISDIR/)
   })
 })

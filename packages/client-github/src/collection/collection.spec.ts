@@ -715,3 +715,75 @@ describe('loadCollectionRecords', () => {
     expect(result.records[0]._error).toBe('500: Unknown error')
   })
 })
+
+// ---------------------------------------------------------------------------
+// Defined subcollection layout (ingitdb-ts#106) and key_encoding refusal (#107)
+// ---------------------------------------------------------------------------
+describe('loadCollectionSchema layout rules', () => {
+  const perFile = "record_file:\n  name: '{key}.yaml'\n"
+  const notFound = () => Promise.reject({ response: { status: 404 } })
+  /** A GithubApi over in-memory files (path -> text). */
+  const filesApi = (files: Record<string, string>, contents?: GithubApi['getContents']) => mockGithubApi({
+    getFileText: vi.fn().mockImplementation((_: string, path: string) =>
+      path in files ? Promise.resolve({ decodedContent: files[path] }) : notFound()),
+    getContents: contents ?? vi.fn().mockImplementation((_: string, path: string) => {
+      const names = Object.keys(files).filter((p) => p.startsWith(`${path}/`))
+      return names.length > 0 ? Promise.resolve(names.map((p) => ({ type: 'file', name: p.slice(path.length + 1), path: p }))) : notFound()
+    }),
+  })
+
+  it('fails on subcollection data where the definition does not put it', async () => {
+    const githubApi = filesApi({
+      'spaces/.collection/definition.yaml': perFile,
+      'spaces/family/contacts/$records/c1.yaml': 'name: Alice\n',
+    })
+    await expect(loadCollectionSchema('o/r', 'main', 'spaces/family/contacts', { githubApi, cache: mockCache() }))
+      .rejects.toThrow(/is at spaces\/family\/contacts\/, but the definition puts it at spaces\/\$records\/family\/contacts\//)
+  })
+
+  it('resolves a mapped root collection path for the parent', async () => {
+    const githubApi = filesApi({
+      '.ingitdb/root-collections.yaml': 'spaces: data/spaces\n',
+      'data/spaces/.collection/definition.yaml': perFile,
+    })
+    const { collectionPath } = await loadCollectionSchema('o/r', undefined, 'spaces/family/contacts', { githubApi, cache: mockCache() })
+    expect(collectionPath).toBe('data/spaces/$records/family/contacts')
+  })
+
+  it('refuses a collection that declares key_encoding', async () => {
+    const githubApi = filesApi({ 'spaces/.collection/definition.yaml': perFile + '  key_encoding: tilde-v1\n' })
+    await expect(loadCollectionSchema('o/r', 'main', 'spaces', { githubApi, cache: mockCache() }))
+      .rejects.toThrow(/collection "spaces" declares record_file.key_encoding "tilde-v1"/)
+  })
+
+  it('treats a non-array directory listing as no directory, and rethrows other listing errors', async () => {
+    const files = { 'spaces/.collection/definition.yaml': perFile }
+    const asFile = filesApi(files, vi.fn().mockResolvedValue({ type: 'file' }))
+    expect((await loadCollectionSchema('o/r', 'main', 'spaces/family/contacts', { githubApi: asFile, cache: mockCache() })).collectionPath)
+      .toBe('spaces/$records/family/contacts')
+    const failing = filesApi(files, vi.fn().mockRejectedValue({ response: { status: 500 } }))
+    await expect(loadCollectionSchema('o/r', 'main', 'spaces/family/contacts', { githubApi: failing, cache: mockCache() }))
+      .rejects.toEqual({ response: { status: 500 } })
+  })
+
+  it('rethrows a definition read error other than 404 for a subcollection', async () => {
+    const githubApi = mockGithubApi({
+      getFileText: vi.fn().mockImplementation((_: string, path: string) =>
+        path.endsWith('definition.yaml') ? Promise.reject({ response: { status: 500 } }) : notFound()),
+    })
+    await expect(loadCollectionSchema('o/r', 'main', 'spaces/family/contacts', { githubApi, cache: mockCache() }))
+      .rejects.toEqual({ response: { status: 500 } })
+  })
+
+  it('reads records from the records_dir the definition declares', async () => {
+    const githubApi = mockGithubApi({
+      getContents: vi.fn().mockResolvedValue([{ type: 'file', name: 'FR.yaml', path: 'countries/data/FR.yaml' }]),
+      getFileText: vi.fn().mockImplementation((_: string, path: string) =>
+        path === 'countries/data/FR.yaml' ? Promise.resolve({ decodedContent: 'name: France\n' }) : notFound()),
+    })
+    const schema = { columns: [], columns_order: [], columnsMap: {}, record_file: { name: '{key}.yaml', records_dir: 'data' } }
+    const { records } = await loadCollectionRecords('o/r', 'main', 'countries', schema, 'countries', { githubApi, cache: mockCache() })
+    expect(githubApi.getContents).toHaveBeenCalledWith('o/r', 'countries/data', 'main')
+    expect(records).toMatchObject([{ _id: 'FR', name: 'France' }])
+  })
+})

@@ -2,6 +2,8 @@ import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import type {
   Cache,
+  LayoutReader,
+  ResolvedCollection,
   CollectionEntry,
   CollectionSchema,
   DatabaseConfig,
@@ -15,11 +17,17 @@ import type {
   RepoSettings
 } from '@ingitdb/client'
 import {
+  assertNoKeyEncoding,
   buildCacheKey,
   createCache,
   createCommittedChangesStore,
+  joinPath,
   parseCollectionSchema,
-  parseYaml
+  parseSubcollectionPath,
+  parseYaml,
+  recordsBasePath,
+  resolveDataPath,
+  resolveSubcollection
 } from '@ingitdb/client'
 
 /**
@@ -47,7 +55,6 @@ export interface FsIngitDbClient extends IngitDbClient {
 const SCHEMA_TTL = 5 * 60 * 1000
 const RECORDS_TTL = 5 * 60 * 1000
 const CONFIG_TTL = 2 * 60 * 1000
-const SHARED_LAYOUT_SEGMENT = '/.collections/'
 export const DEFAULT_MAX_RECORDS = 20
 
 const notImplemented = (name: string) => (): never => {
@@ -71,17 +78,9 @@ const parseFileContent = (content: string, filePath: string): unknown => {
 
 /**
  * Resolves the data directory for a collection given its schema path and optional data_dir.
- * Ported verbatim from `@ingitdb/client-github`.
+ * Shared with `@ingitdb/client-github` through `@ingitdb/client`.
  */
-export const resolveDataPath = (schemaPath: string, dataDir?: string | null): string => {
-  const collectionsIdx = schemaPath.indexOf(SHARED_LAYOUT_SEGMENT)
-  if (collectionsIdx !== -1) {
-    const baseDir = schemaPath.slice(0, collectionsIdx)
-    if (!dataDir || dataDir === '.') return baseDir
-    return `${baseDir}/${dataDir}`
-  }
-  return schemaPath
-}
+export { resolveDataPath }
 
 export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngitDbClient {
   const rootDir = options?.rootDir ?? options?.dir ?? process.cwd()
@@ -101,17 +100,24 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
     return dirents.map((d) => ({ name: d.name, isDir: d.isDirectory() }))
   }
 
+  /** Reads for the shared layout rules: null when the path does not exist. */
+  const reader: LayoutReader = {
+    readText: async (relPath) => {
+      try { return (await readText(relPath)).decodedContent }
+      catch (e) { if (isNotFound(e)) return null; throw e }
+    },
+    listDir: async (relPath) => {
+      try { return (await listDir(relPath)).map((d) => d.name) }
+      catch (e) { if (isNotFound(e)) return null; throw e }
+    }
+  }
+
   /**
-   * Resolve the physical collection path from a collectionId.
-   *
-   * - Top-level collections resolve through `.ingitdb/root-collections.yaml`.
-   * - Nested subcollection paths (a parent chain, e.g. `spaces/family/contacts`)
-   *   have no direct mapping entry, so they fall through and the collectionId is
-   *   returned unchanged — which IS the on-disk directory. This is what makes
-   *   parent-scoped nesting work: `spaces/family/contacts` and
-   *   `spaces/work/contacts` map to distinct directories and never collide.
+   * The schema path `.ingitdb/root-collections.yaml` maps a collection id to
+   * (with `ns.*` namespace expansion), or null when it maps none: a
+   * subcollection path such as `spaces/family/contacts`, or an unknown id.
    */
-  const resolveCollectionPath = async (collectionId: string): Promise<string> => {
+  const lookupCollectionPath = async (collectionId: string): Promise<string | null> => {
     const cacheKey = buildCacheKey('root-collections', rootDir)
     let mapping = await cache.get<Record<string, string>>(cacheKey)
     if (!mapping) {
@@ -144,30 +150,41 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
       }
     }
 
-    // Nested parent-scoped path (or unknown id): the id IS the directory path.
-    return collectionId
+    return null
   }
 
   /**
-   * Build candidate `definition.yaml` paths for a resolved collection path.
-   * Handles the dedicated layout, the shared `/.collections/` layout, and
-   * parent-scoped subcollections whose schema lives under the TOP collection at
-   * `<top>/.collection/subcollections/<sub>/definition.yaml`.
+   * Resolve a collection's definition and data directory.
+   *
+   * - A collection id `.ingitdb/root-collections.yaml` maps (or an unknown id)
+   *   reads `<path>/.collection/definition.yaml` or, in the shared layout,
+   *   `<path>/definition.yaml`.
+   * - A subcollection path `<root>/<key>/<sub>[/<key>/<sub>...]` resolves where
+   *   the definition puts each instance, inside the parent's records directory
+   *   (`spaces/family/contacts` -> `spaces/$records/family/contacts`), so the
+   *   instances of different parents never collide. Data at the place earlier
+   *   writers used is an error (see `resolveSubcollection`).
+   * - A collection that declares `record_file.key_encoding` is refused.
    */
-  const schemaCandidates = (resolvedPath: string): string[] => {
-    const candidates = [
-      `${resolvedPath}/.collection/definition.yaml`,
-      `${resolvedPath}/definition.yaml`
-    ]
-    // Parent-scoped nesting: segments interleave collection/record/subcollection.
-    // e.g. "spaces/family/contacts" -> top "spaces", sub "contacts".
-    const segments = resolvedPath.split('/').filter(Boolean)
-    if (segments.length >= 3) {
-      const top = segments[0]
-      const sub = segments[segments.length - 1]
-      candidates.push(`${top}/.collection/subcollections/${sub}/definition.yaml`)
+  const resolveCollection = async (collectionId: string): Promise<ResolvedCollection> => {
+    const mapped = await lookupCollectionPath(collectionId)
+    const nested = mapped === null ? parseSubcollectionPath(collectionId) : null
+    let resolved: ResolvedCollection
+    if (nested) {
+      const rootPath = (await lookupCollectionPath(nested.root)) ?? nested.root
+      resolved = await resolveSubcollection(collectionId, rootPath, nested.steps, reader)
+    } else {
+      const path = mapped ?? collectionId
+      let text: string | null = null
+      for (const candidate of [`${path}/.collection/definition.yaml`, `${path}/definition.yaml`]) {
+        text = await reader.readText(candidate)
+        if (text !== null) break
+      }
+      const schema = parseCollectionSchema(text ?? {})
+      resolved = { schema, schemaYaml: text ?? '', dataPath: resolveDataPath(path, schema.data_dir as string | null | undefined) }
     }
-    return candidates
+    assertNoKeyEncoding(resolved.schema, collectionId)
+    return resolved
   }
 
   const loadCollectionSchema = async (
@@ -182,26 +199,9 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
       if (cached) return { schema: cached.schema, schemaYaml: cached.rawYaml, collectionPath: cached.path }
     }
 
-    const resolvedPath = await resolveCollectionPath(collectionId)
-
-    let file: { decodedContent: string } | null = null
-    for (const path of schemaCandidates(resolvedPath)) {
-      try { file = await readText(path); break }
-      catch (e) { if (!isNotFound(e)) throw e }
-    }
-
-    if (!file) {
-      const dataPath = resolveDataPath(resolvedPath)
-      const schema = parseCollectionSchema({})
-      await cache.set(cacheKey, { schema, rawYaml: '', path: dataPath }, SCHEMA_TTL)
-      return { schema, schemaYaml: '', collectionPath: dataPath }
-    }
-
-    const rawYaml = file.decodedContent
-    const parsed = parseCollectionSchema(rawYaml)
-    const dataPath = resolveDataPath(resolvedPath, parsed.data_dir as string | null | undefined)
-    await cache.set(cacheKey, { schema: parsed, rawYaml, path: dataPath }, SCHEMA_TTL)
-    return { schema: parsed, schemaYaml: rawYaml, collectionPath: dataPath }
+    const { schema, schemaYaml, dataPath } = await resolveCollection(collectionId)
+    await cache.set(cacheKey, { schema, rawYaml: schemaYaml, path: dataPath }, SCHEMA_TTL)
+    return { schema, schemaYaml, collectionPath: dataPath }
   }
 
   const loadCollectionRecords = async (
@@ -225,7 +225,7 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
 
     // Single-file layout: record_file.name has no {key} placeholder.
     if (!recordFilePattern.includes('{key}')) {
-      const filePath = `${colPath}/${recordFilePattern}`
+      const filePath = joinPath(colPath, recordsBasePath(sch.record_file), recordFilePattern)
       try {
         const file = await readText(filePath)
         const data = parseFileContent(file.decodedContent, filePath)
@@ -244,11 +244,12 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
       return { records: loaded, ingrColumnTypes: {} }
     }
 
-    // File-per-record layout: records live under `<collectionPath>/$records/`.
-    const recordsBasePath = `${colPath}/$records`
+    // File-per-record layout: records live in the records directory,
+    // `<collectionPath>/$records/` unless record_file.records_dir says otherwise.
+    const recordsDir = joinPath(colPath, recordsBasePath(sch.record_file))
     let entries: { name: string; isDir: boolean }[]
     try {
-      entries = await listDir(recordsBasePath)
+      entries = await listDir(recordsDir)
     } catch (e) {
       if (isNotFound(e)) return { records: [], ingrColumnTypes: {} }
       throw e
@@ -261,7 +262,7 @@ export function createFsIngitDbClient(options?: FsIngitDbClientOptions): FsIngit
       .slice(0, DEFAULT_MAX_RECORDS)
 
     for (const entry of files) {
-      const relPath = `${recordsBasePath}/${entry.name}`
+      const relPath = `${recordsDir}/${entry.name}`
       try {
         const file = await readText(relPath)
         const parsed = parseFileContent(file.decodedContent, relPath)

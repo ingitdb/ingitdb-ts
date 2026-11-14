@@ -60,6 +60,12 @@ const committedStore = createIdbCommittedChangesStore()
 - Pending and committed changes tracking with IDB persistence
 - Dual ESM + CJS build with full TypeScript declarations
 
+## Where records are read and written
+
+A collection's records live in its records directory: `record_file.records_dir` when declared (`.` is the collection directory), otherwise `$records/` for a one-record-per-file name. A subcollection path `<collection>/<parent key>/<subcollection>` (repeatable) resolves inside the parent's records directory, as the inGitDB definition defines it: `spaces/family/contacts` is `spaces/$records/family/contacts/`. Data found at `spaces/family/contacts/` while the parent keeps a records directory, the place earlier writers used, is an error naming both paths and the fix, not an empty collection.
+
+A collection that declares `record_file.key_encoding` is refused with an error: these clients do not decode or encode record keys yet (ingitdb/ingitdb-ts#107). Use the `ingitdb` CLI or a Go storage driver for it.
+
 ## Development
 
 ```bash
