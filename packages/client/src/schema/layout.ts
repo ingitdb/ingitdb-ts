@@ -123,8 +123,9 @@ const loadDefinition = async (reader: LayoutReader, candidates: string[]): Promi
  * instance directory is `<parent data dir>/<parent records base>/<key>/<sub>`.
  *
  * Data at `<parent data dir>/<key>/<sub>/`, the layout earlier writers used,
- * while the defined directory is empty, is an error naming both paths and the
- * fix, instead of an empty collection. A parent that declares a key encoding is
+ * is an error naming both paths and the fix, whether or not the defined
+ * directory holds data too, as ingitdb-go's storage drivers and `validate`
+ * report it, so every reader of a database agrees. A parent that declares a key encoding is
  * refused, since its keys are not its directory names.
  */
 export const resolveSubcollection = async (
@@ -147,15 +148,12 @@ export const resolveSubcollection = async (
       const found = joinPath(dataPath, parentKey, sub)
       const foundEntries = await reader.listDir(found)
       if (foundEntries && foundEntries.length > 0) {
-        const expectedEntries = await reader.listDir(expected)
-        if (!expectedEntries || expectedEntries.length === 0) {
-          throw new Error(
-            `@ingitdb/client: subcollection data outside the location the definition defines: ` +
-            `subcollection ${sub} of ${currentId} record "${parentKey}" is at ${found}/, but the definition puts it at ${expected}/ ` +
-            `(${currentId} keeps its records in record_file.records_dir "${base}"). Move it there, ` +
-            `or set record_file.records_dir: "." on ${currentId} and move its own records out of ${base}/.`
-          )
-        }
+        throw new Error(
+          `@ingitdb/client: subcollection data outside the location the definition defines: ` +
+          `subcollection ${sub} of ${currentId} record "${parentKey}" is at ${found}/, but the definition puts it at ${expected}/ ` +
+          `(${currentId} keeps its records in record_file.records_dir "${base}"). Move it there, ` +
+          `or set record_file.records_dir: "." on ${currentId} and move its own records out of ${base}/.`
+        )
       }
     }
     schemaDir = shared ? `${schemaDir}/${sub}` : `${schemaDir}/subcollections/${sub}`
