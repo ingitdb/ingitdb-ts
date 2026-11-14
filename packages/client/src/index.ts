@@ -18,6 +18,10 @@ export type { ParsedCacheControl, FreshnessInput } from './cache/cache-control'
 // ─── Schema ──────────────────────────────────────────────────────────────────
 export { parseCollectionSchema, normalizeCollectionSchema } from './schema/schema'
 export type { CollectionSchema, ColumnDef } from './schema/schema'
+export {
+  recordsBasePath, joinPath, resolveDataPath, assertNoKeyEncoding, parseSubcollectionPath, resolveSubcollection
+} from './schema/layout'
+export type { RecordFileLayout, SubcollectionStep, LayoutReader, ResolvedCollection } from './schema/layout'
 
 // ─── YAML Utilities ──────────────────────────────────────────────────────────
 export { parseYaml, stringifyYaml } from './utils/yaml'

@@ -29,6 +29,7 @@ jobs:
         run: |
           pnpm --filter @ingitdb/client run test:run
           pnpm --filter @ingitdb/client-github run test:run
+          pnpm --filter @ingitdb/client-fs run test:run
 
       - name: Build
         run: pnpm build

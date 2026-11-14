@@ -93,10 +93,8 @@ vi.mock('idb', () => ({
   }
 }))
 
-// Mock resolveCollectionPath for commitAll tests
-vi.mock('../collection/collection', () => ({
-  resolveCollectionPath: vi.fn().mockResolvedValue('countries')
-}))
+// commitAll resolves each collection through the real collection module, over
+// the mocked GithubApi: with no root-collections mapping, 'countries' is 'countries'.
 
 // Import AFTER the mock is set up
 const { createPendingChangesStore } = await import('./pending-changes')
@@ -242,6 +240,19 @@ describe('PendingChangesStore', () => {
       consoleSpy.mockRestore()
     })
 
+    it('throws for a create in a shared-file collection (no {key} in pattern)', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockImplementation((_: string, path: string) => path.endsWith('definition.yaml')
+          ? Promise.resolve({ decodedContent: 'record_file:\n  name: all.yaml' })
+          : Promise.reject({ response: { status: 404 } }))
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, data: { name: 'France' } })
+      await expect(store.commitAll(commitParams)).rejects.toThrow('Shared-file collections not supported for create/update')
+      consoleSpy.mockRestore()
+    })
+
     it('passes committed changes to committedChangesStore', async () => {
       const githubApi = mockGithubApi({
         getFileText: vi.fn().mockRejectedValue({ response: { status: 404 } }),
@@ -321,6 +332,53 @@ describe('PendingChangesStore', () => {
       expect(callArg.message).toBe('delete records')
       expect(callArg.branch).toBe('main')
       expect(callArg.sha).toBeUndefined()
+    })
+
+    it('writes a subcollection record inside the parent records directory (ingitdb-ts#106)', async () => {
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockRejectedValue({ response: { status: 404 } }),
+        getContents: vi.fn().mockRejectedValue({ response: { status: 404 } }),
+        putFile: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, collectionId: 'spaces/family/contacts', recordId: 'c9', data: { name: 'Eve' } })
+      await store.commitAll(commitParams)
+      const callArg = (githubApi.putFile as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      expect(callArg.path).toBe('spaces/$records/family/contacts/$records/c9.yaml')
+    })
+
+    it('writes a record into the records_dir its definition declares', async () => {
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockImplementation((_: string, path: string) => {
+          if (path === 'countries/.collection/definition.yaml') {
+            return Promise.resolve({ decodedContent: "record_file:\n  name: '{key}.yaml'\n  records_dir: data\n" })
+          }
+          return Promise.reject({ response: { status: 404 } })
+        }),
+        putFile: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, data: { name: 'France' } })
+      await store.commitAll(commitParams)
+      expect((githubApi.putFile as ReturnType<typeof vi.fn>).mock.calls[0][0].path).toBe('countries/data/FR.yaml')
+    })
+
+    it('refuses to write to a collection that declares key_encoding (ingitdb-ts#107)', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const githubApi = mockGithubApi({
+        getFileText: vi.fn().mockImplementation((_: string, path: string) => {
+          if (path.endsWith('definition.yaml')) {
+            return Promise.resolve({ decodedContent: "record_file:\n  name: '{key}.yaml'\n  key_encoding: tilde-v1\n" })
+          }
+          return Promise.reject({ response: { status: 404 } })
+        }),
+        putFile: vi.fn().mockResolvedValue(undefined)
+      })
+      store = createPendingChangesStore(githubApi, mockCache())
+      await store.stageCreate({ ...baseParams, recordId: 'a/b', data: { name: 'x' } })
+      await expect(store.commitAll(commitParams)).rejects.toThrow(/declares record_file.key_encoding "tilde-v1"/)
+      expect(githubApi.putFile).not.toHaveBeenCalled()
+      consoleSpy.mockRestore()
     })
 
     it('commits an update change via getFileText then putFile with sha', async () => {

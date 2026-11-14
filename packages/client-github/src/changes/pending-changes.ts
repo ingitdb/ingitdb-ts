@@ -1,8 +1,8 @@
 import { openDB, type IDBPDatabase } from 'idb'
 import type { GithubApi } from '../github/github-api'
 import type { Cache, PendingChange, PendingChangesStore, CommittedChangesStore } from '@ingitdb/client'
-import { parseYaml, stringifyYaml } from '@ingitdb/client'
-import { resolveCollectionPath } from '../collection/collection'
+import { joinPath, recordsBasePath, stringifyYaml } from '@ingitdb/client'
+import { loadCollectionSchema } from '../collection/collection'
 
 const DB_NAME = 'ingitdb-pending'
 const STORE_NAME = 'changes'
@@ -161,21 +161,23 @@ export function createPendingChangesStore(githubApi: GithubApi, cache: Cache): P
 
     const actuallyCommitted: PendingChange[] = []
 
-    // Resolve the file path for a single pending change
+    // Resolve the record file of a pending change where the definition puts it:
+    // the collection's data directory (a subcollection instance lives inside its
+    // parent's records directory), then its records directory. The definition is
+    // read the way readers read it, so a collection with key_encoding is refused.
+    const recordFileLocation = async (change: PendingChange, repo: string, branch: string): Promise<{ path: string; pattern: string }> => {
+      const { schema, collectionPath } = await loadCollectionSchema(repo, branch, change.collectionId, { githubApi, cache })
+      const pattern = schema.record_file?.name || '{key}.yaml'
+      return { path: joinPath(collectionPath, recordsBasePath(schema.record_file), pattern.replace(/\{key}/g, change.recordId)), pattern }
+    }
     const resolveFilePath = async (change: PendingChange, repo: string, branch: string): Promise<string> => {
-      const colPath = await resolveCollectionPath(repo, branch, change.collectionId, { githubApi, cache })
-      let recordFilePattern = '{key}.yaml'
-      try {
-        const defFile = await githubApi.getFileText(repo, `${colPath}/.collection/definition.yaml`, branch)
-        const schema = parseYaml(defFile.decodedContent) as { record_file?: { name?: string } }
-        if (schema?.record_file?.name) recordFilePattern = schema.record_file.name
-      } catch { /* use default pattern */ }
-      if (!recordFilePattern.includes('{key}')) {
+      const { path, pattern } = await recordFileLocation(change, repo, branch)
+      if (!pattern.includes('{key}')) {
         throw new Error(
-          `Shared-file collections not supported for create/update (collection: ${change.collectionId}, file: ${recordFilePattern})`
+          `Shared-file collections not supported for create/update (collection: ${change.collectionId}, file: ${pattern})`
         )
       }
-      return `${colPath}/$records/${recordFilePattern.replace(/\{key}/g, change.recordId)}`
+      return path
     }
 
     try {
@@ -202,19 +204,13 @@ export function createPendingChangesStore(githubApi: GithubApi, cache: Cache): P
         // Pass 3: deletes — batch via Git Tree API (unchanged)
         const changeByPath = new Map<string, PendingChange>()
         for (const change of groupChanges.filter(c => c.changeType === 'delete')) {
-          const colPath = await resolveCollectionPath(repo, branch, change.collectionId, { githubApi, cache })
-          let recordFilePattern = '{key}.yaml'
-          try {
-            const defFile = await githubApi.getFileText(repo, `${colPath}/.collection/definition.yaml`, branch)
-            const schema = parseYaml(defFile.decodedContent) as { record_file?: { name?: string } }
-            if (schema?.record_file?.name) recordFilePattern = schema.record_file.name
-          } catch { /* use default pattern */ }
-          if (!recordFilePattern.includes('{key}')) {
+          const { path, pattern } = await recordFileLocation(change, repo, branch)
+          if (!pattern.includes('{key}')) {
             throw new Error(
-              `Deleting records from shared-file collections is not yet supported (collection: ${change.collectionId}, file: ${recordFilePattern})`
+              `Deleting records from shared-file collections is not yet supported (collection: ${change.collectionId}, file: ${pattern})`
             )
           }
-          changeByPath.set(`${colPath}/$records/${recordFilePattern.replace(/\{key}/g, change.recordId)}`, change)
+          changeByPath.set(path, change)
         }
 
         if (changeByPath.size > 0) {

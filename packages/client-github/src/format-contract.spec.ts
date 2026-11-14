@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import type { GithubApi } from './github/github-api'
@@ -10,7 +10,7 @@ vi.mock('idb', () => ({ openDB: () => Promise.resolve({}) }))
 const mockParseIngr = vi.hoisted(() => vi.fn())
 vi.mock('@ingr/codec', () => ({ parseIngr: mockParseIngr }))
 
-const { resolveCollectionPath, loadCollectionSchema } = await import('./collection/collection')
+const { resolveCollectionPath, loadCollectionSchema, loadCollectionRecords } = await import('./collection/collection')
 const { loadRecord } = await import('./collection/record')
 
 // ---------------------------------------------------------------------------
@@ -33,9 +33,17 @@ function fixtureGithubApi(): GithubApi {
     getRateLimit: () => ({ limit: null, remaining: null, reset: null }),
     getRepo: vi.fn(),
     getBranches: vi.fn(),
-    getContents: vi.fn(),
+    getContents: vi.fn(async (_repo: string, path: string) => {
+      const abs = join(fixturesRoot, path)
+      if (!existsSync(abs)) throw { response: { status: 404 } }
+      return readdirSync(abs, { withFileTypes: true }).map((d) => ({
+        type: d.isDirectory() ? 'dir' : 'file', name: d.name, path: `${path}/${d.name}`,
+      }))
+    }),
     getFileText: vi.fn(async (_repo: string, path: string) => {
-      const decodedContent = readFileSync(join(fixturesRoot, path), 'utf8')
+      const abs = join(fixturesRoot, path)
+      if (!existsSync(abs)) throw { response: { status: 404 } }
+      const decodedContent = readFileSync(abs, 'utf8')
       return { decodedContent, sha: 'fixture-sha' }
     }),
     putFile: vi.fn(),
@@ -83,13 +91,22 @@ describe('on-disk format contract (Go writer <-> TS reader)', () => {
     // Two contacts share the leaf collection + record id but live under different
     // parent spaces — the Option A nesting the Go writer produces.
     const family = await loadRecord(
-      repo, 'spaces/family/contacts/$records/c1.yaml', undefined, { githubApi: fixtureGithubApi() },
+      repo, 'spaces/$records/family/contacts/$records/c1.yaml', undefined, { githubApi: fixtureGithubApi() },
     )
     const work = await loadRecord(
-      repo, 'spaces/work/contacts/$records/c1.yaml', undefined, { githubApi: fixtureGithubApi() },
+      repo, 'spaces/$records/work/contacts/$records/c1.yaml', undefined, { githubApi: fixtureGithubApi() },
     )
     expect(family.name).toBe('Alice')
     expect(work.name).toBe('Bob')
-    expect(family._path).toBe('spaces/family/contacts/$records/c1.yaml')
+    expect(family._path).toBe('spaces/$records/family/contacts/$records/c1.yaml')
+  })
+
+  it('resolves a subcollection instance inside the parent records directory and reads it', async () => {
+    const d = deps()
+    const { schema, collectionPath } = await loadCollectionSchema(repo, undefined, 'spaces/family/contacts', d)
+    expect(collectionPath).toBe('spaces/$records/family/contacts')
+    expect(schema.columnsMap['name']).toBeDefined()
+    const { records } = await loadCollectionRecords(repo, undefined, 'spaces/family/contacts', schema, collectionPath, d)
+    expect(records).toMatchObject([{ _id: 'c1', name: 'Alice', _path: 'spaces/$records/family/contacts/$records/c1.yaml' }])
   })
 })
