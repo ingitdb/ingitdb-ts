@@ -132,15 +132,26 @@ describe('resolveSubcollection', () => {
       .rejects.toThrow(/is at spaces\/family\/contacts\//)
   })
 
-  it('reads the defined place when both places hold data, and never flags the records directory itself', async () => {
+  it('fails when both places hold data, as Go does, at every level', async () => {
     const reader = memReader({
       'spaces/.collection/definition.yaml': perFile,
+      'spaces/.collection/subcollections/contacts/definition.yaml': perFile,
       'spaces/$records/family/contacts/$records/c1.yaml': 'name: Alice\n',
       'spaces/family/contacts/$records/c1.yaml': 'name: Old\n',
+      'spaces/$records/work/contacts/$records/c1/notes/$records/n1.yaml': 'x: 1\n',
+      'spaces/$records/work/contacts/c1/notes/$records/n0.yaml': 'x: 0\n',
+    })
+    await expect(resolveSubcollection('spaces/family/contacts', 'spaces', steps('spaces/family/contacts'), reader))
+      .rejects.toThrow(/is at spaces\/family\/contacts\/, but the definition puts it at spaces\/\$records\/family\/contacts\//)
+    await expect(resolveSubcollection('spaces/work/contacts/c1/notes', 'spaces', steps('spaces/work/contacts/c1/notes'), reader))
+      .rejects.toThrow(/is at spaces\/\$records\/work\/contacts\/c1\/notes\/, but the definition puts it at spaces\/\$records\/work\/contacts\/\$records\/c1\/notes\//)
+  })
+
+  it('never flags the records directory itself', async () => {
+    const reader = memReader({
+      'spaces/.collection/definition.yaml': perFile,
       'spaces/$records/$records/contacts/x.yaml': 'x: 1\n',
     })
-    expect((await resolveSubcollection('spaces/family/contacts', 'spaces', steps('spaces/family/contacts'), reader)).dataPath)
-      .toBe('spaces/$records/family/contacts')
     expect((await resolveSubcollection('spaces/$records/contacts', 'spaces', steps('spaces/$records/contacts'), reader)).dataPath)
       .toBe('spaces/$records/$records/contacts')
   })
